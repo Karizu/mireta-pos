@@ -83,6 +83,12 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
     private TransactionToCashier transactionToCashier;
     private List<TransactionToCashier.Items> itemsList;
     private TransactionPost transactionPost;
+    private int CASH_METHOD = 1;
+    private int QRIS_METHOD = 2;
+    private int PAYMENT_METHOD = CASH_METHOD;
+    private int PENDING = 1;
+    private int SUCCESS = 2;
+    private int STATUS = SUCCESS;
     private List<Items> orederditems;
     private List<Items> mItems;
     private long mTotal;
@@ -373,6 +379,13 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
                     tvKembalian.setText(" ");
                 }
             } else {
+                if (PAYMENT_METHOD == QRIS_METHOD) {
+                    dialog.dismiss();
+                    btnBayar.setEnabled(true);
+                    tvKembalian.setText("");
+                    return;
+                }
+
                 Toast.makeText(context, "Silahkan masukan nominal pembayaran", Toast.LENGTH_SHORT).show();
             }
         });
@@ -380,7 +393,7 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
         // Spinner Drop down elements
         List<String> method = new ArrayList<String>();
         method.add("Tunai");
-        method.add("ARDI");
+        method.add("QRIS");
 
         // Creating adapter for spinner
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, R.layout.layout_spinner_text, method);
@@ -395,9 +408,14 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (spinner.getItemAtPosition(position).toString().equals("Tunai")){
+                    PAYMENT_METHOD = CASH_METHOD;
+                    STATUS = SUCCESS;
                     layout.setVisibility(View.VISIBLE);
                 } else {
+                    PAYMENT_METHOD = QRIS_METHOD;
+                    STATUS = PENDING;
                     layout.setVisibility(View.GONE);
+                    nomBayar = mTotal;
                 }
             }
 
@@ -480,7 +498,7 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
 
         totalPrice = mTotal;
 
-        transactionPost = new TransactionPost(loginStockLocation.location_id, format, totalQty, totalPrice+"", 1, 1, 2, details,  "","");
+        transactionPost = new TransactionPost(loginStockLocation.location_id, format, totalQty, totalPrice+"", 1, PAYMENT_METHOD, STATUS, details,  "","");
 
         Gson gson = new Gson();
         String json = gson.toJson(transactionPost);
@@ -496,7 +514,7 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
                 try {
                     if (response.isSuccessful()){
                         TransactionResponse apiResponse = response.body().getData();
-                        createTransactionArdi(member_id);
+//                        createTransactionArdi(member_id);
                         Log.d("TAG TRX", "MASUK TRX");
 
                         Date d = null;
@@ -512,6 +530,7 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
                         String total = totalPrice + "";
                         Log.d("DATA TRX", order_no + " " + total);
                         Intent intent = new Intent(PembayaranActivity.this, PembayaranSuksesActivity.class);
+                        intent.putExtra("payment_method", PAYMENT_METHOD);
                         intent.putExtra("order_no", order_no);
                         intent.putExtra("order_date", sdf.format(d));
                         intent.putExtra("total", total);
@@ -565,6 +584,7 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
                         String total = totalPrice + "";
                         Log.d("DATA TRX", order_no + " " + total);
                         Intent intent = new Intent(PembayaranActivity.this, PembayaranSuksesActivity.class);
+                        intent.putExtra("payment_method", PAYMENT_METHOD);
                         intent.putExtra("order_no", order_no);
                         intent.putExtra("order_date", sdf.format(d));
                         intent.putExtra("order_time", sd.format(d));

@@ -2,6 +2,7 @@ package com.boardinglabs.mireta.standalone.modul.master.profil.toko;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -52,7 +53,7 @@ public class ProfilTokoActivity extends BaseActivity {
     @Override
     protected void setContentViewOnChild() {
         ButterKnife.bind(this);
-        setToolbarTitle("PROFILE TOKO");
+        setToolbarTitle("PROFIL TOKO");
         context = this;
         getDetailProfil();
 
@@ -65,6 +66,7 @@ public class ProfilTokoActivity extends BaseActivity {
             public void onResponse(Call<ApiResponse<DetailLocationResponse>> call, Response<ApiResponse<DetailLocationResponse>> response) {
                 Loading.hide(context);
                 try {
+                    Log.d("on", "on");
                         DetailLocationResponse res = Objects.requireNonNull(response.body()).getData();
                         etNamaToko.setText(res.getName());
                         etAlamatToko.setText(res.getAddress());
@@ -78,6 +80,7 @@ public class ProfilTokoActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<ApiResponse<DetailLocationResponse>> call, Throwable t) {
+                t.printStackTrace();
                 Loading.hide(context);
             }
         });
@@ -102,12 +105,10 @@ public class ProfilTokoActivity extends BaseActivity {
                 Loading.hide(context);
                 try {
                     if (response.isSuccessful()){
-                        StockLocation stockLocation = new StockLocation();
-                        stockLocation.id = loginStockLocation.location_id;
+                        StockLocation stockLocation = PreferenceManager.getStockLocation();
                         stockLocation.name = etNamaToko.getText().toString();
                         stockLocation.address = etAlamatToko.getText().toString();
                         stockLocation.telp = etNoTelp.getText().toString();
-                        stockLocation.brand_id = loginStockLocation.brand_id;
                         PreferenceManager.saveStockLocation(stockLocation);
 
                         Toast.makeText(context, "Berhasil update profil", Toast.LENGTH_SHORT).show();

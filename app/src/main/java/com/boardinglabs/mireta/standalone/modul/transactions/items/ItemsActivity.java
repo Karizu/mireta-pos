@@ -317,9 +317,9 @@ public class ItemsActivity extends BaseActivity implements ItemsView, CommonInte
                 Gson gson = new Gson();
                 listOrder = gson.toJson(orederditems);
 //                Pembayaran Without ARDI
-//                Intent intent = new Intent(ItemsActivity.this, PembayaranActivity.class);
+                Intent intent = new Intent(ItemsActivity.this, PembayaranActivity.class);
 //                Pemayaran ARDI
-                Intent intent = new Intent(ItemsActivity.this, PembayaranArdiActivity.class);
+//                Intent intent = new Intent(ItemsActivity.this, PembayaranArdiActivity.class);
                 Log.d("mTotal", String.valueOf(mTotalPrice));
                 Log.d("listOrder", listOrder);
                 String mTotalPrices = String.valueOf(mTotalPrice);

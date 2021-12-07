@@ -65,6 +65,7 @@
                         android:textStyle="bold" />
 
                     <LinearLayout
+                        android:visibility="gone"
                         android:id="@+id/setting"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
@@ -188,11 +189,12 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/border_round_white"
                     android:orientation="horizontal"
-                    android:weightSum="4"
+                    android:weightSum="3"
                     android:padding="8dp"
                     tools:ignore="MissingConstraints">
 
                     <LinearLayout
+                        android:visibility="gone"
                         android:id="@+id/cekSaldo"
                         android:layout_width="@dimen/d50"
                         android:layout_height="@dimen/d65"
@@ -288,14 +290,14 @@
                         <ImageView
                             android:layout_width="@dimen/d35"
                             android:layout_height="@dimen/d35"
-                            android:src="@drawable/register"
+                            android:src="@drawable/pengaturan"
                             android:textColor="@color/white" />
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="Registrasi"
+                            android:text="Pengaturan"
                             android:textSize="12sp"
                             android:layout_marginBottom="@dimen/d8"
                             android:textColor="@color/white"/>

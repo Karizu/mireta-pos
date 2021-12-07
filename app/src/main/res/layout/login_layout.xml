@@ -18,14 +18,14 @@
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:layout_marginTop="@dimen/d16"
-                android:layout_marginBottom="@dimen/d16"
+                android:layout_marginBottom="26dp"
                 android:layout_height="@dimen/d100">
 
                 <ImageView
                     android:id="@+id/image_login"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/logo_bjbs" />
+                    android:src="@drawable/pd_logo" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -107,6 +107,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:orientation="horizontal"
+                android:visibility="invisible"
                 android:layout_marginBottom="@dimen/d8"
                 android:gravity="center|center_vertical">
                 <com.boardinglabs.mireta.standalone.component.fontview.RobotoRegularTextView

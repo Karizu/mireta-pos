@@ -42,12 +42,21 @@ import java.util.concurrent.TimeUnit;
 public class SplashActivity extends AppCompatActivity {
     private String currentVersion;
     private ImageView splashOne;
+    private TextView title;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_layout);
+        new PreferenceManager(this);
         splashOne = (ImageView) findViewById(R.id.img_splash_1);
+        title = findViewById(R.id.title);
+        try {
+            title.setText(PreferenceManager.getStockLocation().business.name);
+        } catch (Exception e){
+            title.setText("Pempek Duo");
+        }
+
 //        String refreshedToken = FirebaseInstanceId.getInstance().getToken();w
 //
 //        //To displaying token on logcat

@@ -190,35 +190,7 @@ public class HomeActivity extends BaseActivity implements HomeView, CommonInterf
 
     @OnClick(R.id.registerMember)
     void onClickRegisterMember() {
-        li = LayoutInflater.from(context);
-        promptsView = (TapCard) li.inflate(R.layout.tap_card, null);
-
-        alertDialogBuilder = new AlertDialog.Builder(context);
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-        alertTaps = alertDialogBuilder.create();
-
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(Objects.requireNonNull(alertTaps.getWindow()).getAttributes());
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
-
-        try {
-            promptsView.init(handlerRegisterMember);
-            promptsView.searchEnd();
-            promptsView.searchBegin();
-            promptsView.setOkListener(v1 -> {
-                alertTaps.dismiss();
-                promptsView.searchEnd();
-                ((Activity) context).finish();
-            });
-
-            alertTaps.show();
-            alertTaps.getWindow().setAttributes(lp);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        setting.performClick();
     }
 
     @OnClick(R.id.cekSaldo)

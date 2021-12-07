@@ -3,6 +3,7 @@ package com.boardinglabs.mireta.standalone.modul.transactions.items.pembayaran;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -30,6 +31,8 @@ public class PembayaranSuksesActivity extends BaseActivity {
     private String order_no, total, whatToDo,sisaSaldo;
     private long nomBayar, mTotal;
     public int saldo = 0;
+    private int PAYMENT_METHOD;
+    private int QRIS_METHOD = 2;
     private String mNomBayar, totals, order_date, order_time, member_id, member_name, member_lulusan, member_angkatan, sKembalian;
 
     @BindView(R.id.btnSelesai)
@@ -38,6 +41,12 @@ public class PembayaranSuksesActivity extends BaseActivity {
     LinearLayout btnPrintStruk;
     @BindView(R.id.tvKembalian)
     TextView tvKembalian;
+    @BindView(R.id.tv_desc)
+    TextView tv_desc;
+    @BindView(R.id.tv_text_button)
+    TextView tv_text_button;
+    @BindView(R.id.btnBayar)
+    LinearLayout btnBayar;
 
     @Override
     protected int getLayoutResourceId() {
@@ -51,6 +60,7 @@ public class PembayaranSuksesActivity extends BaseActivity {
         setToolbarTitle("Pembayaran Sukses");
 
         Intent intent = getIntent();
+        PAYMENT_METHOD = intent.getIntExtra("payment_method", 0);
         order_no = intent.getStringExtra("order_no");
         order_date = intent.getStringExtra("order_date");
         sKembalian = intent.getStringExtra("kembalian");
@@ -74,6 +84,14 @@ public class PembayaranSuksesActivity extends BaseActivity {
         nomBayar = noBayar;
         mTotal = nTotal;
         tvKembalian.setText("Rp " + MethodUtil.toCurrencyFormat(sKembalian) + "");
+
+        if (PAYMENT_METHOD == QRIS_METHOD) {
+            tv_desc.setText("Transaksi anda menunggu pembayaran");
+            tv_text_button.setText("Bayar Disini");
+            btnBayar.setVisibility(View.VISIBLE);
+            btnPrintStruk.setVisibility(View.GONE);
+        }
+
 //        if (nomBayar != 0){
 //            try {
 //                long total = mTotal;
@@ -133,6 +151,7 @@ public class PembayaranSuksesActivity extends BaseActivity {
     @OnClick(R.id.btnPrintStruk)
     void onClickBtnPrintStruk(){
         Intent intent = new Intent(PembayaranSuksesActivity.this, DetailTransactionActivity.class);
+        intent.putExtra("payment_method", PAYMENT_METHOD);
         intent.putExtra("order_no", order_no);
         intent.putExtra("total", total);
         intent.putExtra("nomBayar", mNomBayar);
@@ -144,6 +163,26 @@ public class PembayaranSuksesActivity extends BaseActivity {
         intent.putExtra("member_lulusan", member_lulusan);
         intent.putExtra("member_angkatan", member_angkatan);
         intent.putExtra("whatToDo", Constant.DO_PRINT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.btnBayar)
+    void onClickBtnBayar(){
+        Intent intent = new Intent(PembayaranSuksesActivity.this, DetailTransactionActivity.class);
+        intent.putExtra("payment_method", PAYMENT_METHOD);
+        intent.putExtra("order_no", order_no);
+        intent.putExtra("total", total);
+        intent.putExtra("nomBayar", mNomBayar);
+        intent.putExtra("kembalian", sKembalian);
+        intent.putExtra("sisaSaldo", sisaSaldo+"");
+        intent.putExtra("order_date", order_date);
+        intent.putExtra("order_time", order_time);
+        intent.putExtra("member_name", member_name);
+        intent.putExtra("member_lulusan", member_lulusan);
+        intent.putExtra("member_angkatan", member_angkatan);
+        intent.putExtra("whatToDo", "2");
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);

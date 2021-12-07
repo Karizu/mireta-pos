@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/d100"
         android:layout_above="@+id/img_splash_1"
-        android:src="@drawable/bjbs" />
+        android:src="@drawable/pd_logo" />
 
     <ImageView
         android:id="@+id/img_splash_1"
@@ -20,6 +20,7 @@
         android:src="@drawable/logo" />
 
     <com.boardinglabs.mireta.standalone.component.fontview.RobotoBoldTextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"

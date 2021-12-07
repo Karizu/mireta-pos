@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -35,15 +36,18 @@ import com.boardinglabs.mireta.standalone.component.PrinterCommands;
 import com.boardinglabs.mireta.standalone.component.adapter.DetailTransactionAdapter;
 import com.boardinglabs.mireta.standalone.component.network.Api;
 import com.boardinglabs.mireta.standalone.component.network.ApiLocal;
+import com.boardinglabs.mireta.standalone.component.network.NetworkService;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionDetailModel;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionHeader;
 import com.boardinglabs.mireta.standalone.component.network.entities.Trx.Detail;
+import com.boardinglabs.mireta.standalone.component.network.entities.Trx.TransactionResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.Trx.Transactions;
 import com.boardinglabs.mireta.standalone.component.network.response.ApiResponse;
 import com.boardinglabs.mireta.standalone.component.util.Constant;
 import com.boardinglabs.mireta.standalone.component.util.Loading;
 import com.boardinglabs.mireta.standalone.component.util.MethodUtil;
 import com.boardinglabs.mireta.standalone.component.util.PreferenceManager;
+import com.boardinglabs.mireta.standalone.component.util.Utils;
 import com.boardinglabs.mireta.standalone.modul.home.HomeActivity;
 import com.cloudpos.DeviceException;
 import com.cloudpos.POSTerminal;
@@ -60,7 +64,13 @@ import com.wizarpos.apidemo.printer.PrintSize;
 import com.zj.btsdk.BluetoothService;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -81,6 +91,7 @@ import retrofit2.Response;
 
 public class DetailTransactionActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks, BluetoothHandler.HandlerInterface {
 
+    private static final int SUCCESS = 2;
     private List<TransactionDetailModel> transactionDetails;
     private DetailTransactionAdapter adapter;
     public static final int RC_BLUETOOTH = 0;
@@ -100,6 +111,9 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
     private Context context = DetailTransactionActivity.this;
     private String whatToDo, sisaSaldo;
     private String order_date, order_time, member_name, member_lulusan, member_angkatan, sKembalian, mNomBayar = null;
+    private int PAYMENT_METHOD;
+    private int QRIS_METHOD = 2;
+    private String order_no, total;
 
     @BindView(R.id.tvNameTenant)
     TextView tvNameTenant;
@@ -129,9 +143,16 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
     RecyclerView recyclerView;
     @BindView(R.id.swipeRefresh)
     SwipeRefreshLayout refreshLayout;
+    @BindView(R.id.layout_qris)
+    LinearLayout layout_qris;
 
     private Dialog dialog;
     private int loop = 0;
+
+    @OnClick(R.id.btnKonfirmasi)
+    void btnKonfirmasi(){
+        updateTransaction(order_no, SUCCESS);
+    }
 
     @OnClick(R.id.btnVoid)
     void onClickVoid() {
@@ -160,6 +181,9 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
     @Override
     protected void setContentViewOnChild() {
         ButterKnife.bind(this);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         setToolbarTitle("Detail Transaksi");
 
         try {
@@ -177,8 +201,10 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                 "cloudpos.device.printer");
 
         Intent intent = getIntent();
-        String order_no = null, total = null;
+        order_no = null;
+        total = null;
         try {
+            PAYMENT_METHOD = intent.getIntExtra("payment_method", 0);
             order_date = intent.getStringExtra("order_date");
             order_time = intent.getStringExtra("order_time");
             sKembalian = intent.getStringExtra("kembalian");
@@ -221,7 +247,7 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
 //            getDetailTransaction(finalOrder_no);
             refreshLayout.setRefreshing(false);
         });
-//        setupBluetooth();
+        setupBluetooth();
 
     }
 
@@ -608,7 +634,7 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
             closePrinter();
             printStruk();
         } else {
-//            printText();
+            printText();
         }
 //        printText();
 //        doPrintStruk();
@@ -623,13 +649,45 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
         if (isPrinterReady) {
 
             mService.write(PrinterCommands.CENTER_ALIGN);
+            try {
+                BitmapFactory.Options o = new BitmapFactory.Options();
+                o.inJustDecodeBounds = true;
+                BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.pd_logo_black_white, o);
+
+                //The new size we want to scale to
+                final int REQUIRED_WIDTH=150;
+                final int REQUIRED_HIGHT=75;
+                //Find the correct scale value. It should be the power of 2.
+                int scale=1;
+                while(o.outWidth/scale/2>=REQUIRED_WIDTH && o.outHeight/scale/2>=REQUIRED_HIGHT)
+                    scale*=2;
+
+                //Decode with inSampleSize
+                BitmapFactory.Options o2 = new BitmapFactory.Options();
+                o2.inSampleSize=scale;
+
+                Bitmap bmp = BitmapFactory.decodeResource(context.getResources(),
+                        R.drawable.pd_logo_black_white, o2);
+//                Bitmap bmp = getBitmapFromURL(NetworkService.BASE_URL_IMAGE + PreferenceManager.getStockLocation().brand.getLogo_image_url());
+                if(bmp!=null){
+                    byte[] command = Utils.decodeBitmap(bmp);
+                    mService.write(command);
+                    mService.sendMessage("\n", "");
+                }else{
+                    Log.e("Print Photo error", "the file isn't exists");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("PrintTools", "the file isn't exists");
+            }
             mService.sendMessage(loginBusiness.name, "");
             mService.write(PrinterCommands.CENTER_ALIGN);
             mService.sendMessage(loginBusiness.address, "");
             mService.write(PrinterCommands.CENTER_ALIGN);
             mService.sendMessage("Bandung", "");
             mService.write(PrinterCommands.ESC_ENTER);
-            mService.sendMessage("--------------------------------", "");
+            mService.sendMessage("----------------------------------------", "");
             mService.write(PrinterCommands.ESC_ENTER);
             mService.write(PrinterCommands.CENTER_ALIGN);
             mService.sendMessage("Detail Transaksi", "");
@@ -638,7 +696,7 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
             mService.write(PrinterCommands.CENTER_ALIGN);
             mService.sendMessage("Order No: " + transaction.getTransactionCode(), "");
             mService.write(PrinterCommands.ESC_ENTER);
-            mService.sendMessage("--------------------------------", "");
+            mService.sendMessage("----------------------------------------", "");
             mService.write(PrinterCommands.ESC_ENTER);
 
             int mTotal = Integer.parseInt(transaction.getTotalPrice());
@@ -667,13 +725,13 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                 mService.write(PrinterCommands.LEFT_ALIGN);
             }
 
-            item = "--------------------------------";
+            item = "----------------------------------------";
 
             mService.write(PrinterCommands.CENTER_ALIGN);
             mService.sendMessage(item, "");
             mService.write(PrinterCommands.ESC_ENTER);
 
-            item = "TOTAL : \n";
+            item = "TOTAL : ";
             grandPrice = "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mTotal);
 
             mService.write(PrinterCommands.LEFT_ALIGN);
@@ -682,17 +740,47 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
             mService.sendMessage(grandPrice, "");
             mService.write(PrinterCommands.ESC_ENTER);
 
-            item = "--------------------------------";
+            item = "----------------------------------------\n\n";
 
             mService.write(PrinterCommands.CENTER_ALIGN);
             mService.sendMessage(item, "");
-            mService.write(PrinterCommands.ESC_ENTER);
+            mService.sendMessage("Terimakasih sudah berbelanja\n\n\n", "");
 
         } else {
             if (mService.isBTopen())
                 startActivityForResult(new Intent(this, DeviceActivity.class), RC_CONNECT_DEVICE);
             else
                 requestBluetooth();
+        }
+    }
+
+    public Bitmap getBitmapFromURL(String src) {
+        try {
+            URL url = new URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(input, null, o);
+
+            //The new size we want to scale to
+            final int REQUIRED_WIDTH=100;
+            final int REQUIRED_HIGHT=50;
+            //Find the correct scale value. It should be the power of 2.
+            int scale=1;
+            while(o.outWidth/scale/2>=REQUIRED_WIDTH && o.outHeight/scale/2>=REQUIRED_HIGHT)
+                scale*=2;
+
+            //Decode with inSampleSize
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize=scale;
+            Bitmap myBitmap = BitmapFactory.decodeStream(input, null, o2);
+            return myBitmap;
+        } catch (IOException e) {
+            // Log exception
+            return null;
         }
     }
 
@@ -740,10 +828,12 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                     switch (mStatus) {
                         case 1:
                             tvStatusOrder.setText("PENDING");
+                            //
                             tvStatusOrder.setTextColor(ContextCompat.getColor(context, R.color.Red));
-                            btnBayar.setVisibility(View.VISIBLE);
+                            btnBayar.setVisibility(View.GONE);
                             btnPrint.setVisibility(View.GONE);
                             btnVoid.setVisibility(View.GONE);
+                            layout_qris.setVisibility(View.VISIBLE);
                             break;
                         case 2:
                             tvStatusOrder.setText("BERHASIL");
@@ -768,8 +858,12 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
 
                     if (whatToDo != null) {
                         if (whatToDo.equals(Constant.DO_PRINT)) {
-                            closePrinter();
-                            printStruk();
+                            if (manufacturer.equals("wizarPOS")) {
+                                closePrinter();
+                                printStruk();
+                            } else {
+                                printText();
+                            }
                         }
                     }
 
@@ -782,6 +876,41 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
             public void onFailure(Call<ApiResponse<Transactions>> call, Throwable t) {
                 refreshLayout.setRefreshing(false);
                 Log.d("TAG onFailure", t.getMessage());
+            }
+        });
+    }
+
+    private void updateTransaction(String id, int status){
+        Loading.show(context);
+        ApiLocal.apiInterface().updateTransaction(id, status, "Bearer " + PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<TransactionResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<TransactionResponse>> call, Response<ApiResponse<TransactionResponse>> response) {
+                Loading.hide(context);
+                try {
+                    if (response.isSuccessful()){
+                        TransactionResponse transactionModel = response.body().getData();
+
+                        Intent intent = new Intent(DetailTransactionActivity.this, DetailTransactionActivity.class);
+                        intent.putExtra("order_no", id);
+                        intent.putExtra("total", total);
+                        intent.putExtra("order_date", order_date);
+                        intent.putExtra("order_time", order_time);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(context, "Terjadi kesalahan, konfirmasi pembayaran gagal", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(context, "Terjadi kesalahan, silahkan periksa koneksi internet anda", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<TransactionResponse>> call, Throwable t) {
+                Loading.hide(context);
+                t.printStackTrace();
             }
         });
     }

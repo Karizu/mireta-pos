@@ -87,8 +87,9 @@ public interface NetworkService {
 
 //    String BASE_NEW_URL_LOCAL = "http://192.168.1.9/mireta-pos/public/api/";
 //        String BASE_NEW_URL_LOCAL = "http://37.72.172.144/mireta-selada/public/api/";
-    String BASE_MIRETA_DEV = "http://36.94.58.181/api/mireta-pos/public/index.php/api/";
-    String BASE_MIRETA_PROD = "http://36.94.58.178/api/mireta-pos/public/index.php/api/";
+    String BASE_MIRETA_DEV = "http://36.94.58.181/api/mireta-api/public/index.php/api/";
+    String BASE_MIRETA_PROD = "http://36.94.58.178/api/mireta-api/public/index.php/api/";
+    String BASE_URL_IMAGE = "http://36.94.58.178/api/mireta-api";
     String BASE_NEW_URL_LOCAL = BASE_MIRETA_PROD;
     //    String BASE_NEW_URL_LOCAL = "http://37.72.172.144/mireta-pos/public/api/";
 //    String BASE_ARDI = "http://192.168.1.9/ardi-api/public/api/";
@@ -670,4 +671,10 @@ public interface NetworkService {
     @POST("members/exchangeFreeMeal")
     Call<ApiResponse> doCheckFreeMeal(@Body RequestBody requestBody,
                                        @Header("Authorization") String token);
+
+    @FormUrlEncoded
+    @POST("transactions/{id}/updateStatus")
+    Call<ApiResponse<com.boardinglabs.mireta.standalone.component.network.entities.Trx.TransactionResponse>> updateTransaction(@Path("id") String id,
+                                                                                                                               @Field("status") int status,
+                                                                                                                               @Header("Authorization") String token);
 }

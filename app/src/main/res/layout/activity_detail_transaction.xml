@@ -285,6 +285,58 @@
                             android:layout_marginTop="8dp"
                             android:background="@color/NormalGreyText"/>
 
+                        <LinearLayout
+                            android:id="@+id/layout_qris"
+                            android:visibility="gone"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:textColor="@color/Black"
+                                android:textStyle="bold"
+                                android:layout_marginTop="16dp"
+                                android:textSize="16sp"
+                                android:text="QRIS"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:textColor="@color/Black"
+                                android:layout_marginTop="16dp"
+                                android:textSize="16sp"
+                                android:text="Silahkan scan QRIS dibawah ini untuk melakukan pembayaran"
+                                tools:ignore="HardcodedText" />
+
+                            <ImageView
+                                android:visibility="visible"
+                                android:id="@+id/img_qris"
+                                android:layout_width="match_parent"
+                                android:layout_height="500dp"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginStart="@dimen/d20"
+                                android:layout_marginEnd="20dp"
+                                android:src="@drawable/qris_selada"/>
+
+                            <Button
+                                android:id="@+id/btnKonfirmasi"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
+                                android:visibility="visible"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:textColor="@color/white"
+                                android:background="@drawable/background_button"
+                                android:text="Konfirmasi Pembayaran"
+                                tools:ignore="HardcodedText" />
+
+                        </LinearLayout>
 
                         <RelativeLayout
                             android:layout_width="match_parent"

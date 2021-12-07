@@ -35,6 +35,9 @@ public class Brand implements Serializable
     @SerializedName("deleted_at")
     @Expose
     private String deletedAt;
+    @SerializedName("logo_image_url")
+    @Expose
+    private String logo_image_url;
     private final static long serialVersionUID = 9006489727072730935L;
 
     public Integer getId() {
@@ -109,4 +112,11 @@ public class Brand implements Serializable
         this.deletedAt = deletedAt;
     }
 
+    public String getLogo_image_url() {
+        return logo_image_url;
+    }
+
+    public void setLogo_image_url(String logo_image_url) {
+        this.logo_image_url = logo_image_url;
+    }
 }
