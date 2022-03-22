@@ -8,13 +8,17 @@ public class TransactionDetailModel {
     private String item_name;
     private String quantity;
     private String price;
+    private String total_price;
     private String discount;
+    private String desc;
 
-    public TransactionDetailModel(String item_name, String quantity, String price, String discount) {
+    public TransactionDetailModel(String item_name, String quantity, String price, String total_price, String discount, String desc) {
         this.item_name = item_name;
         this.quantity = quantity;
         this.price = price;
+        this.total_price = total_price;
         this.discount = discount;
+        this.desc = desc;
     }
 
     public String getId() {
@@ -71,5 +75,21 @@ public class TransactionDetailModel {
 
     public void setDiscount(String discount) {
         this.discount = discount;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public String getTotal_price() {
+        return total_price;
+    }
+
+    public void setTotal_price(String total_price) {
+        this.total_price = total_price;
     }
 }

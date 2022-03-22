@@ -11,6 +11,7 @@
         android:id="@+id/tvQty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/Black"
         android:paddingEnd="@dimen/d8"
         android:text="5 x"/>
 
@@ -19,6 +20,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="3"
+        android:textColor="@color/black"
         android:text="Teh Manis"/>
 
     <TextView
@@ -27,6 +29,7 @@
         android:layout_height="wrap_content"
         android:gravity="right"
         android:layout_weight="3"
+        android:textColor="@color/Black"
         android:text="Rp 150,000"/>
 
 </LinearLayout>

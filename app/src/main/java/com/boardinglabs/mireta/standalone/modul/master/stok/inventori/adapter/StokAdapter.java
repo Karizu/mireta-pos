@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.boardinglabs.mireta.standalone.R;
 import com.boardinglabs.mireta.standalone.component.network.ApiLocal;
+import com.boardinglabs.mireta.standalone.component.network.entities.Stocks.Location;
 import com.boardinglabs.mireta.standalone.component.network.entities.Stocks.StockResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.User;
 import com.boardinglabs.mireta.standalone.component.network.response.ApiResponse;
@@ -40,6 +41,7 @@ import com.boardinglabs.mireta.standalone.component.util.MethodUtil;
 import com.boardinglabs.mireta.standalone.component.util.PreferenceManager;
 import com.boardinglabs.mireta.standalone.modul.master.brand.model.CategoryModel;
 import com.boardinglabs.mireta.standalone.modul.master.stok.inventori.StokActivity;
+import com.boardinglabs.mireta.standalone.modul.master.stok.inventori.TambahBarangActivity;
 import com.boardinglabs.mireta.standalone.modul.master.stok.inventori.model.ItemResponse;
 import com.boardinglabs.mireta.standalone.modul.master.stok.inventori.model.KatalogModel;
 import com.bumptech.glide.Glide;
@@ -73,6 +75,7 @@ public class StokAdapter extends RecyclerView.Adapter<StokAdapter.ViewHolder> {
     private ArrayList<String> kategori, kategoriId, subKategori, subKategoriId;
     private Spinner spinnerSubKategori;
     private SwipeRefreshLayout swipeRefresh;
+    private String locationId;
 
     public StokAdapter(List<KatalogModel> transactionModels, Context context){
         this.transactionModels = transactionModels;
@@ -99,193 +102,132 @@ public class StokAdapter extends RecyclerView.Adapter<StokAdapter.ViewHolder> {
     @SuppressLint({"SetTextI18n", "ResourceAsColor"})
     @Override
     public void onBindViewHolder(@NonNull StokAdapter.ViewHolder holder, int position){
-        final KatalogModel transactionModel = transactionModels.get(position);
-        final String id = transactionModel.getId();
-        final String name = transactionModel.getName();
-        final String description = transactionModel.getDeskripsi();
-        final String date = transactionModel.getDate();
-        final String categoryName = transactionModel.getKategori();
-        String qty = transactionModel.getTotal_qty();
-        String is_daily_stok = transactionModel.getIs_daily_stock();
-        String image = transactionModel.getImage();
-        image = image.replace("index.php/", "");
-        final String harga = transactionModel.getHarga();
-//        final String order_no = transactionModel.getId_category_nested();
-
-        Date d = null;
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-            d = sdf.parse(date);
-        } catch (ParseException ex) {
-            Log.v("Exception", ex.getLocalizedMessage());
-        }
+            final KatalogModel transactionModel = transactionModels.get(position);
+            final String id = transactionModel.getId();
+            final String name = transactionModel.getName();
+            final String description = transactionModel.getDeskripsi();
+            final String date = transactionModel.getDate();
+            String qty = transactionModel.getTotal_qty();
+            String image = transactionModel.getImage();
+            image = image.replace("index.php/", "");
+            final String harga = transactionModel.getHarga();
 
-        sdf.applyPattern("dd-MM-yyyy");
+            Date d = null;
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            try {
+                d = sdf.parse(date);
+            } catch (ParseException ex) {
+                Log.v("Exception", ex.getLocalizedMessage());
+            }
 
-        getStok(id, holder.qtyInput);
+            sdf.applyPattern("dd-MM-yyyy");
 
-        holder.tvDate.setVisibility(View.GONE);
-        holder.tvDate.setText(sdf.format(d));
-        holder.tvName.setText(name);
-        holder.tvDescription.setText(description);
-        holder.tvHarga.setText("Rp "+ MethodUtil.toCurrencyFormat(harga) + "");
+            holder.qtyInput.setText(qty);
 
-//        Picasso.get().load(image).placeholder(R.drawable.resto_default).fit().into(holder.imgBarang);
+            holder.tvDate.setVisibility(View.GONE);
+            holder.tvDate.setText(sdf.format(d));
+            holder.tvName.setText(name);
+            holder.tvDescription.setText(description);
+            holder.tvHarga.setText("Rp "+ MethodUtil.toCurrencyFormat(harga) + "");
 
-        Glide.with(context).load(image)
-                .placeholder(R.drawable.resto_default).fitCenter().dontAnimate()
-                .into(holder.imgBarang);
+            Glide.with(context).load(image)
+                    .placeholder(R.drawable.resto_default).fitCenter().dontAnimate()
+                    .into(holder.imgBarang);
 
-        holder.imgButton.setOnClickListener(v -> {
-
-            showDialog(R.layout.layout_input_password, context);
-            TextView tvTitleBarang = dialog.findViewById(R.id.tvTitleBarang);
-            tvTitleBarang.setText("TAMBAH STOK");
-            EditText etPassword = dialog.findViewById(R.id.etPassword);
-            Button btnProses = dialog.findViewById(R.id.btnProses);
-            btnProses.setOnClickListener(v1 -> {
-                if (!PreferenceManager.getPassVoid().equals("")){
-                    if (etPassword.getText().toString().equals(PreferenceManager.getPassVoid())) {
-                        dialog.dismiss();
-                        showDialog(R.layout.dialog_restock, context);
-                        @SuppressLint("CutPasteId") ImageView btnClose = dialog.findViewById(R.id.btnCloseDialog);
-                        EditText etStok = dialog.findViewById(R.id.etTambahStok);
-                        EditText etMinStok = dialog.findViewById(R.id.etAlasanPengurangan);
-                        etMinStok.setVisibility(View.GONE);
-                        Button buttonSimpan = dialog.findViewById(R.id.btnSimpanStock);
-                        btnClose.setVisibility(View.GONE);
-                        btnClose.setOnClickListener(v2 -> dialog.dismiss());
-                        buttonSimpan.setOnClickListener(v2 -> {
-                            if (etStok.getText().toString().equals("")){
-                                Toast.makeText(context, "Silahkan isi stok", Toast.LENGTH_SHORT).show();
-                            } else {
-                                if (Objects.requireNonNull(holder.qtyInput).getText().toString().equals("-")){
-                                    dialog.dismiss();
-                                    if (etStok.getText().toString().equals("0")){
-                                        Toast.makeText(context, "Silahkan input nominal yang benar", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        createStok(id,etStok.getText().toString());
-                                    }
+            holder.imgButton.setOnClickListener(v -> {
+                showDialog(R.layout.dialog_restock, context);
+                @SuppressLint("CutPasteId") ImageView btnClose = dialog.findViewById(R.id.btnCloseDialog);
+                EditText etStok = dialog.findViewById(R.id.etTambahStok);
+                EditText etMinStok = dialog.findViewById(R.id.etAlasanPengurangan);
+                Spinner spinnerLocation = dialog.findViewById(R.id.spinnerLocation);
+                setSpinnerLocation(spinnerLocation);
+                etMinStok.setVisibility(View.GONE);
+                Button buttonSimpan = dialog.findViewById(R.id.btnSimpanStock);
+                btnClose.setVisibility(View.GONE);
+                btnClose.setOnClickListener(v2 -> dialog.dismiss());
+                buttonSimpan.setOnClickListener(v2 -> {
+                    if (locationId != null) {
+                        if (etStok.getText().toString().equals("")){
+                            Toast.makeText(context, "Silahkan isi stok", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            if (Objects.requireNonNull(holder.qtyInput).getText().toString().equals("-")){
+                                dialog.dismiss();
+                                if (etStok.getText().toString().equals("0")){
+                                    Toast.makeText(context, "Silahkan input nominal yang benar", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    dialog.dismiss();
-                                    getStokForUpdate(id, etStok.getText().toString());
+                                    createStok(id,etStok.getText().toString());
                                 }
+                            } else {
+                                dialog.dismiss();
+                                updateStok(id, etStok.getText().toString(), locationId);
                             }
-                        });
-                    } else {
-                        dialog.dismiss();
-                        showDialog(R.layout.layout_wrong_pass, context);
-                        Button btnOk = dialog.findViewById(R.id.btnOK);
-                        btnOk.setOnClickListener(v2 -> dialog.dismiss());
-                    }
-                } else {
-                    dialog.dismiss();
-                    showDialog(R.layout.layout_wrong_pass, context);
-                    Button btnOk = dialog.findViewById(R.id.btnOK);
-                    btnOk.setOnClickListener(v2 -> dialog.dismiss());
-                }
-            });
-        });
-
-        holder.imgButtonMin.setOnClickListener(v -> {
-            showDialog(R.layout.layout_input_password, context);
-            TextView tvTitleBarang = dialog.findViewById(R.id.tvTitleBarang);
-            tvTitleBarang.setText("KURANGI STOK");
-            TextView etMasterKey = dialog.findViewById(R.id.etMasterKey);
-            etMasterKey.setText("Silahkan masukan password akun anda");
-            EditText etPassword = dialog.findViewById(R.id.etPassword);
-            Button btnProses = dialog.findViewById(R.id.btnProses);
-            btnProses.setOnClickListener(v1 -> {
-                if (!etPassword.getText().toString().equals("")) {
-                    dialog.dismiss();
-                    checkPass(etPassword.getText().toString(), holder, id);
-                } else {
-                    dialog.dismiss();
-                    Toast.makeText(context, "Silahkan isi password akun anda", Toast.LENGTH_SHORT).show();
-                }
-//                if (!PreferenceManager.getPassVoid().equals("")){
-//                    if (etPassword.getText().toString().equals(PreferenceManager.getPassVoid())) {
-//                        dialog.dismiss();
-//                        showDialog(R.layout.dialog_restock, context);
-//                        @SuppressLint("CutPasteId") ImageView btnClose = dialog.findViewById(R.id.btnCloseDialog);
-//                        TextView tvTitleBarangs = dialog.findViewById(R.id.tvTitleBarang);
-//                        EditText etStok = dialog.findViewById(R.id.etTambahStok);
-//                        EditText etAlasanPengurangan = dialog.findViewById(R.id.etAlasanPengurangan);
-//                        etAlasanPengurangan.setVisibility(View.GONE);
-//                        Button buttonSimpan = dialog.findViewById(R.id.btnSimpanStock);
-//                        tvTitleBarangs.setText("KURANGI STOK");
-//                        btnClose.setVisibility(View.GONE);
-//                        btnClose.setOnClickListener(v2 -> {
-//                            dialog.dismiss();
-//                        });
-//                        buttonSimpan.setOnClickListener(v2 -> {
-//                            if (etStok.getText().toString().equals("")){
-//                                Toast.makeText(context, "Silahkan isi stok", Toast.LENGTH_SHORT).show();
-//                            } else {
-//                                if (Objects.requireNonNull(holder.qtyInput).getText().toString().equals("-")){
-//                                    dialog.dismiss();
-//                                    if (etStok.getText().toString().equals("0")){
-//                                        Toast.makeText(context, "Silahkan input nominal yang benar", Toast.LENGTH_SHORT).show();
-//                                    } else {
-//                                        createStok(id,etStok.getText().toString());
-//                                    }
-//                                } else {
-//                                    dialog.dismiss();
-//                                    if (etStok.getText().toString().equals("0")){
-//                                        Toast.makeText(context, "Silahkan input nominal yang benar", Toast.LENGTH_SHORT).show();
-//                                    } else {
-//                                        getStokForUpdate(id, "-"+etStok.getText().toString());
-//                                    }
-////                                    if (etAlasanPengurangan.getText().toString().equals("")){
-////                                        Toast.makeText(context, "Silahkan isi alasan pengurangan stok", Toast.LENGTH_SHORT).show();
-////                                    } else {
-////                                        getStokForUpdate(id, "-"+etStok.getText().toString());
-////                                    }
-//                                }
-//                            }
-//                        });
-//
-//                    } else {
-//                        dialog.dismiss();
-//                        showDialog(R.layout.layout_wrong_pass, context);
-//                        Button btnOk = dialog.findViewById(R.id.btnOK);
-//                        btnOk.setOnClickListener(v2 -> dialog.dismiss());
-//                    }
-//                } else {
-//                    dialog.dismiss();
-//                    showDialog(R.layout.layout_wrong_pass, context);
-//                    Button btnOk = dialog.findViewById(R.id.btnOK);
-//                    btnOk.setOnClickListener(v2 -> dialog.dismiss());
-//                }
-            });
-        });
-
-        holder.layout.setOnClickListener(view -> {
-            showDialog(R.layout.dialog_restock, context);
-            @SuppressLint("CutPasteId") ImageView btnClose = dialog.findViewById(R.id.btnCloseDialog);
-            EditText etStok = dialog.findViewById(R.id.etTambahStok);
-            Button buttonSimpan = dialog.findViewById(R.id.btnSimpanStock);
-            btnClose.setOnClickListener(v1 -> {
-                dialog.dismiss();
-            });
-            buttonSimpan.setOnClickListener(v1 -> {
-                if (etStok.getText().toString().equals("")){
-                    Toast.makeText(context, "Silahkan isi stok", Toast.LENGTH_SHORT).show();
-                } else {
-                    if (Objects.requireNonNull(holder.qtyInput).getText().toString().equals("-")){
-                        dialog.dismiss();
-                        if (etStok.getText().toString().equals("0")){
-                            Toast.makeText(context, "Silahkan input nominal yang benar", Toast.LENGTH_SHORT).show();
-                        } else {
-                            createStok(id,etStok.getText().toString());
                         }
                     } else {
-                        dialog.dismiss();
-                        getStokForUpdate(id, etStok.getText().toString());
+                        Toast.makeText(context, "Silahkan pilih sumber stok", Toast.LENGTH_SHORT).show();
                     }
-                }
+
+                });
             });
-        });
+
+            holder.imgButtonMin.setOnClickListener(v -> {
+                showDialog(R.layout.layout_input_password, context);
+                TextView tvTitleBarang = dialog.findViewById(R.id.tvTitleBarang);
+                tvTitleBarang.setText("KURANGI STOK");
+                TextView etMasterKey = dialog.findViewById(R.id.etMasterKey);
+                etMasterKey.setText("Silahkan masukan password akun anda");
+                EditText etPassword = dialog.findViewById(R.id.etPassword);
+                Button btnProses = dialog.findViewById(R.id.btnProses);
+                btnProses.setOnClickListener(v1 -> {
+                    if (!etPassword.getText().toString().equals("")) {
+                        dialog.dismiss();
+                        checkPass(etPassword.getText().toString(), holder, id);
+                    } else {
+                        dialog.dismiss();
+                        Toast.makeText(context, "Silahkan isi password akun anda", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
+
+            holder.layout.setOnClickListener(view -> {
+                showDialog(R.layout.dialog_restock, context);
+                @SuppressLint("CutPasteId") ImageView btnClose = dialog.findViewById(R.id.btnCloseDialog);
+                EditText etStok = dialog.findViewById(R.id.etTambahStok);
+                EditText etMinStok = dialog.findViewById(R.id.etAlasanPengurangan);
+                Spinner spinnerLocation = dialog.findViewById(R.id.spinnerLocation);
+                setSpinnerLocation(spinnerLocation);
+                etMinStok.setVisibility(View.GONE);
+                Button buttonSimpan = dialog.findViewById(R.id.btnSimpanStock);
+                btnClose.setVisibility(View.GONE);
+                btnClose.setOnClickListener(v2 -> dialog.dismiss());
+                buttonSimpan.setOnClickListener(v2 -> {
+                    if (locationId != null) {
+                        if (etStok.getText().toString().equals("")){
+                            Toast.makeText(context, "Silahkan isi stok", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            if (Objects.requireNonNull(holder.qtyInput).getText().toString().equals("-")){
+                                dialog.dismiss();
+                                if (etStok.getText().toString().equals("0")){
+                                    Toast.makeText(context, "Silahkan input nominal yang benar", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    createStok(id,etStok.getText().toString());
+                                }
+                            } else {
+                                dialog.dismiss();
+                                updateStok(id, etStok.getText().toString(), locationId);
+                            }
+                        }
+                    } else {
+                        Toast.makeText(context, "Silahkan pilih sumber stok", Toast.LENGTH_SHORT).show();
+                    }
+
+                });
+            });
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private void checkPass(String pass, StokAdapter.ViewHolder holder, String id) {
@@ -298,39 +240,7 @@ public class StokAdapter extends RecyclerView.Adapter<StokAdapter.ViewHolder> {
                 Loading.hide(context);
                 try {
                     if (response.isSuccessful()){
-                        showDialog(R.layout.dialog_restock, context);
-                        @SuppressLint("CutPasteId") ImageView btnClose = dialog.findViewById(R.id.btnCloseDialog);
-                        TextView tvTitleBarangs = dialog.findViewById(R.id.tvTitleBarang);
-                        EditText etStok = dialog.findViewById(R.id.etTambahStok);
-                        EditText etAlasanPengurangan = dialog.findViewById(R.id.etAlasanPengurangan);
-                        etAlasanPengurangan.setVisibility(View.GONE);
-                        Button buttonSimpan = dialog.findViewById(R.id.btnSimpanStock);
-                        tvTitleBarangs.setText("KURANGI STOK");
-                        btnClose.setVisibility(View.GONE);
-                        btnClose.setOnClickListener(v2 -> {
-                            dialog.dismiss();
-                        });
-                        buttonSimpan.setOnClickListener(v2 -> {
-                            if (etStok.getText().toString().equals("")){
-                                Toast.makeText(context, "Silahkan isi stok", Toast.LENGTH_SHORT).show();
-                            } else {
-                                if (Objects.requireNonNull(holder.qtyInput).getText().toString().equals("-")){
-                                    dialog.dismiss();
-                                    if (etStok.getText().toString().equals("0")){
-                                        Toast.makeText(context, "Silahkan input nominal yang benar", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        createStok(id,etStok.getText().toString());
-                                    }
-                                } else {
-                                    dialog.dismiss();
-                                    if (etStok.getText().toString().equals("0")){
-                                        Toast.makeText(context, "Silahkan input nominal yang benar", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        getStokForUpdate(id, "-"+etStok.getText().toString());
-                                    }
-                                }
-                            }
-                        });
+
                     } else {
                         showDialog(R.layout.layout_wrong_pass, context);
                         TextView etMasterKey = dialog.findViewById(R.id.etMasterKey);
@@ -349,6 +259,64 @@ public class StokAdapter extends RecyclerView.Adapter<StokAdapter.ViewHolder> {
                 Loading.hide(context);
                 t.printStackTrace();
                 Toast.makeText(context, "Terjadi kesalahan pada sistem", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setSpinnerLocation(Spinner spinnerLocation) {
+        Loading.show(context);
+        ApiLocal.apiInterface().getLocations(PreferenceManager.getStockLocation().location.getBusiness().id,"Bearer " + PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<List<Location>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Location>>> call, Response<ApiResponse<List<Location>>> response) {
+                Loading.hide(context);
+                try {
+                    if (response.isSuccessful()){
+                        List<String> locationNameList = new ArrayList<>();
+                        locationNameList.add("Pilih Sumber Stok");
+                        List<String> locationIdList = new ArrayList<>();
+                        locationIdList.add("0");
+                        for (Location location : Objects.requireNonNull(response.body()).getData()){
+                            locationNameList.add(location.getName());
+                            locationIdList.add(String.valueOf(location.getId()));
+                        }
+//
+//                        locationNameList.add("Manual");
+//                        locationIdList.add("");
+
+                        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(context, R.layout.layout_spinner_text, locationNameList) {
+                            @Override
+                            public boolean isEnabled(int position) {
+                                return position != 0;
+                            }
+                        };
+
+                        dataAdapter.setDropDownViewResource(R.layout.layout_spinner_dropdown);
+                        spinnerLocation.setAdapter(dataAdapter);
+                        spinnerLocation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                if (position != 0) {
+                                    locationId = locationIdList.get(position);
+                                } else {
+                                    locationId = null;
+                                }
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Location>>> call, Throwable t) {
+                t.printStackTrace();
+                Loading.hide(context);
             }
         });
     }
@@ -551,14 +519,23 @@ public class StokAdapter extends RecyclerView.Adapter<StokAdapter.ViewHolder> {
 
     }
 
-    private void updateStok(String stock_id, String qtyStok) {
+    private void updateStok(String stock_id, String qtyStok, String locationId) {
         Log.d("stock_id, qty", stock_id+" "+qtyStok);
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("qty", qtyStok)
-                .build();
+        RequestBody requestBody;
+        if (locationId.equals("") || locationId.equals("0")) {
+            requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("qty", qtyStok)
+                    .build();
+        } else {
+            requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("qty", qtyStok)
+                    .addFormDataPart("source_location_id", locationId)
+                    .build();
+        }
 
-        ApiLocal.apiInterface().updateStock(stock_id, requestBody, "Bearer "+ PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse>() {
+        ApiLocal.apiInterface().newUpdateStock(stock_id, requestBody, "Bearer "+ PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 Loading.hide(context);
@@ -570,7 +547,8 @@ public class StokAdapter extends RecyclerView.Adapter<StokAdapter.ViewHolder> {
                     context.startActivity(intent);
                 } else {
                     try {
-                        Toast.makeText(context, response.body().getMessage()!=null ? response.body().getMessage() : response.message(), Toast.LENGTH_SHORT).show();
+                        String error = MethodUtil.getErrorResponse(response.errorBody().string());
+                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                     } catch (Exception e){
                         e.printStackTrace();
                         Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show();
@@ -742,7 +720,7 @@ public class StokAdapter extends RecyclerView.Adapter<StokAdapter.ViewHolder> {
         });
     }
 
-    private void getStokForUpdate(String item_id, String qty){
+    private void getStokForUpdate(String item_id, String qty, String locationId){
         Loading.show(context);
         ApiLocal.apiInterface().getKatalogStok(stock_location_id, item_id, "Bearer "+ PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<List<StockResponse>>>() {
             @SuppressLint("SetTextI18n")
@@ -754,7 +732,7 @@ public class StokAdapter extends RecyclerView.Adapter<StokAdapter.ViewHolder> {
                     for (int i = 0; i < res.size(); i++){
                         StockResponse stockResponse = res.get(i);
                         stock_id = stockResponse.getId()+"";
-                        updateStok(stock_id, qty);
+
                     }
 
                 } catch (Exception e){

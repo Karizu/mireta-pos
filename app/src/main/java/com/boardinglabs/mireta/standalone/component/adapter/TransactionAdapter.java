@@ -108,6 +108,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             intent.putExtra("total", harga);
             intent.putExtra("order_date", orderDate);
             intent.putExtra("order_time", orderTime);
+            intent.putExtra("isFromReport", true);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         });

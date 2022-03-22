@@ -8,8 +8,22 @@ import com.boardinglabs.mireta.standalone.component.network.entities.Ardi.Topup;
 import com.boardinglabs.mireta.standalone.component.network.entities.Ardi.Trx.TransactionArdi;
 import com.boardinglabs.mireta.standalone.component.network.entities.Ardi.Users;
 import com.boardinglabs.mireta.standalone.component.network.entities.CategoriesResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.DamagedStocks.DamagedStocks;
+import com.boardinglabs.mireta.standalone.component.network.entities.Expenditure.ExpenditureResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.InquiryStatus.InquiryStatusOperations;
+import com.boardinglabs.mireta.standalone.component.network.entities.InquiryStatus.StockReport;
+import com.boardinglabs.mireta.standalone.component.network.entities.ItemVariants.ItemVariants;
 import com.boardinglabs.mireta.standalone.component.network.entities.Locations.DetailLocationResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.NewTransactionPost;
+import com.boardinglabs.mireta.standalone.component.network.entities.OpenStore;
+import com.boardinglabs.mireta.standalone.component.network.entities.PaymentAccountResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.PaymentMethodResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.PaymentTypeResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.ProductReceipt.ProductReceiptResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.ProductReceipt.Request.RequestProductReceipt;
 import com.boardinglabs.mireta.standalone.component.network.entities.SecurityQuestions;
+import com.boardinglabs.mireta.standalone.component.network.entities.StockLocation;
+import com.boardinglabs.mireta.standalone.component.network.entities.Stocks.Location;
 import com.boardinglabs.mireta.standalone.component.network.entities.Stocks.StockResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionPost;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionToCashier;
@@ -88,8 +102,10 @@ public interface NetworkService {
 //    String BASE_NEW_URL_LOCAL = "http://192.168.1.9/mireta-pos/public/api/";
 //        String BASE_NEW_URL_LOCAL = "http://37.72.172.144/mireta-selada/public/api/";
     String BASE_MIRETA_DEV = "http://36.94.58.181/api/mireta-api/public/index.php/api/";
-    String BASE_MIRETA_PROD = "http://36.94.58.178/api/mireta-api/public/index.php/api/";
-    String BASE_URL_IMAGE = "http://36.94.58.178/api/mireta-api";
+//    String BASE_MIRETA_PROD = "http://36.94.58.178/api/mireta-api/public/index.php/api/";
+    String BASE_MIRETA_PROD = "https://mireta.selada.id/be/public/api/";
+//    String BASE_URL_IMAGE = "http://36.94.58.178/api/mireta-api";
+    String BASE_URL_IMAGE = "https://mireta.selada.id/be";
     String BASE_NEW_URL_LOCAL = BASE_MIRETA_PROD;
     //    String BASE_NEW_URL_LOCAL = "http://37.72.172.144/mireta-pos/public/api/";
 //    String BASE_ARDI = "http://192.168.1.9/ardi-api/public/api/";
@@ -421,6 +437,19 @@ public interface NetworkService {
     Observable<ItemsResponse> getStockItems(@Query("location_id") String location_id,
                                             @Header("Authorization") String token);
 
+    @GET("stocks")
+    Call<ApiResponse<List<StockResponse>>> getItemsList(@Query("location_id") String location_id,
+                                            @Header("Authorization") String token);
+
+    @GET("itemsWithStock")
+    Observable<ApiResponse<List<ItemVariants>>> getNewItems(@Query("location_id") String location_id,
+                                               @Query("brand_id") String brand_id,
+                                               @Query("with_stock") String with_stock,
+                                               @Query("order_type") String order_type,
+                                               @Query("order_by") String order_by,
+                                               @Query("item_transaction_type_id") int transactionType,
+                                               @Header("Authorization") String token);
+
     @Headers("Content-Type: application/json")
     @POST("transactions")
     Observable<ResponseBody> createTransaction(@Body TransactionPost transactionPost,
@@ -428,6 +457,14 @@ public interface NetworkService {
 
     @POST("transactions")
     Call<ApiResponse<com.boardinglabs.mireta.standalone.component.network.entities.Trx.TransactionResponse>> createTransactions(@Body TransactionPost transactionPost,
+                                                                                                                                @Header("Authorization") String token);
+
+    @POST("transactionsV2")
+    Call<ApiResponse<com.boardinglabs.mireta.standalone.component.network.entities.Trx.TransactionResponse>> createTransactions(@Body NewTransactionPost transactionPost,
+                                                                                                                                @Header("Authorization") String token);
+
+    @POST("transactionsV2/inquiry")
+    Call<ApiResponse<com.boardinglabs.mireta.standalone.component.network.entities.Trx.Transactions>> getInqTransactions(@Body NewTransactionPost transactionPost,
                                                                                                                                 @Header("Authorization") String token);
 
     @Headers("Content-Type: application/json")
@@ -457,6 +494,20 @@ public interface NetworkService {
     Call<ApiResponse<List<com.boardinglabs.mireta.standalone.component.network.entities.Trx.Transactions>>> getHistory(@Query("location_id") String location_id,
                                                                                                                        @Header("Authorization") String token);
 
+    @GET("locations")
+    Call<ApiResponse<List<Location>>> getLocations(@Query("business_id") String business_id, @Header("Authorization") String token);
+
+    @GET("transactions")
+    Call<ApiResponse<List<com.boardinglabs.mireta.standalone.component.network.entities.Trx.Transactions>>> getHistoryOperation(@Query("location_id") String location_id,
+                                                                                                                                @Query("location_operation_id") String location_operation_id,
+                                                                                                                       @Header("Authorization") String token);
+
+    @GET("transactions")
+    Call<ApiResponse<List<com.boardinglabs.mireta.standalone.component.network.entities.Trx.Transactions>>> getHistoryOperation(@Query("location_id") String location_id,
+                                                                                                                                @Query("location_operation_id") String location_operation_id,
+                                                                                                                                @Query("status") String status,
+                                                                                                                                @Header("Authorization") String token);
+
     @GET("transactions")
     Call<ApiResponse<List<com.boardinglabs.mireta.standalone.component.network.entities.Trx.Transactions>>> getHistoryToday(@Query("location_id") String location_id,
                                                                                                                             @Query("status") String status,
@@ -483,6 +534,10 @@ public interface NetworkService {
 
     @POST("items")
     Call<ApiResponse<ItemResponse>> createItem(@Body RequestBody requestBody,
+                                               @Header("Authorization") String token);
+
+    @POST("damagedStocks")
+    Call<ApiResponse<DamagedStocks>> createDamagedItem(@Body RequestBody requestBody,
                                                @Header("Authorization") String token);
 
     @POST("items/{id}")
@@ -523,6 +578,27 @@ public interface NetworkService {
     Call<ApiResponse<List<LaporanResponse>>> getLaporanStock(@Query("stock_location_id") String stock_location_id,
                                                              @Header("Authorization") String token);
 
+    @GET("stocks/report")
+    Call<ApiResponse<List<StockReport>>> getStockReport(@Query("location_id") String stock_location_id,
+                                                        @Header("Authorization") String token);
+
+    @GET("locations")
+    Call<ApiResponse<List<StockLocation>>> getUserLocation(@Query("business_id") String business_id,
+                                                           @Header("Authorization") String token);
+
+    @GET("stocks/report")
+    Call<ApiResponse<List<StockReport>>> getStockReport(@Query("location_id") String stock_location_id,
+                                                        @Query("dateStart") String dateStart,
+                                                        @Query("dateEnd") String dateEnd,
+                                                        @Header("Authorization") String token);
+
+    @GET("stocks/report")
+    Call<ApiResponse<List<StockReport>>> getMyStockReport(@Query("location_id") String stock_location_id,
+                                                          @Query("location_operation_id") String location_operation_id,
+                                                        @Query("dateStart") String dateStart,
+                                                        @Query("dateEnd") String dateEnd,
+                                                        @Header("Authorization") String token);
+
     // New API
 
     @POST("auth/register")
@@ -557,12 +633,27 @@ public interface NetworkService {
                                   @Body RequestBody requestBody,
                                   @Header("Authorization") String token);
 
+    @POST("stocks/{id}")
+    Call<ApiResponse> newUpdateStock(@Path("id") String stock_id,
+                                  @Body RequestBody requestBody,
+                                  @Header("Authorization") String token);
+
+    @POST("stocks/{id}/operationAdjust")
+    Call<ApiResponse> reportAdjustmentStock(@Path("id") String stock_id,
+                                     @Body RequestBody requestBody,
+                                     @Header("Authorization") String token);
+
     @POST("auth/changePassword")
     Call<ApiResponse> changePassword(@Body RequestBody requestBody,
                                      @Header("Authorization") String token);
 
+//    @GET("transactions/report")
+//    Call<ApiResponse> getReport(@Query("is_settled") String is_settled,
+//                                @Query("location_id") String location_id,
+//                                @Header("Authorization") String token);
+
     @GET("transactions/report")
-    Call<ApiResponse> getReport(@Query("is_settled") String is_settled,
+    Call<ApiResponse> getReport(@Query("location_operation_id") String is_settled,
                                 @Query("location_id") String location_id,
                                 @Header("Authorization") String token);
 
@@ -672,9 +763,75 @@ public interface NetworkService {
     Call<ApiResponse> doCheckFreeMeal(@Body RequestBody requestBody,
                                        @Header("Authorization") String token);
 
-    @FormUrlEncoded
-    @POST("transactions/{id}/updateStatus")
+    @POST("locationOperations/open")
+    Call<ApiResponse<OpenStore>> openStore(@Body RequestBody requestBody,
+                                           @Header("Authorization") String token);
+
+    @POST("locationOperations/{id}/close")
+    Call<ApiResponse<OpenStore>> closeStore(@Path("id") String location_operation_id,
+                                           @Body RequestBody requestBody,
+                                           @Header("Authorization") String token);
+
+    @POST("locationOperations/{id}")
+    Call<ApiResponse> reportAdjustmentCash(@Path("id") String id,
+                                           @Body RequestBody requestBody,
+                                           @Header("Authorization") String token);
+
+    @GET("locationOperations/status")
+    Call<ApiResponse<InquiryStatusOperations>> getInqStatusOperations(@Query("location_id") String location_id,
+                                                                      @Header("Authorization") String token);
+
+    @GET("expenditures")
+    Call<ApiResponse<List<ExpenditureResponse>>> getExpenditure(@Query("location_id") String location_id,
+                                                                @Query("location_operation_id") String location_operation_id,
+                                                                @Header("Authorization") String token);
+
+    @GET("expenditures")
+    Call<ApiResponse<List<ExpenditureResponse>>> getExpenditure(@Query("location_id") String location_id,
+                                                                @Query("location_operation_id") String location_operation_id,
+                                                                @Query("date") String date,
+                                                                @Header("Authorization") String token);
+
+    @POST("expenditures/{id}")
+    Call<ApiResponse> deleteExpenditure(@Path("id") String id,
+                                        @Query("_method") String _method,
+                                        @Header("Authorization") String token);
+
+    @POST("expenditures")
+    Call<ApiResponse> addExpenditure(@Body RequestBody requestBody,
+                                     @Header("Authorization") String token);
+
+    @GET("paymentMethods")
+    Call<ApiResponse<List<PaymentMethodResponse>>> getPaymentMethods(@Query("order_type") String order_type,
+                                                                     @Query("order_by") String order_by,
+                                                                     @Query("location_id") String location_id,
+                                                                     @Query("location_operation_id") String location_operation_id,
+                                                                     @Header("Authorization") String token);
+
+    @GET("transactionTypes")
+    Call<ApiResponse<List<PaymentTypeResponse>>> getPaymentTypes(@Query("order_type") String order_type,
+                                                                   @Header("Authorization") String token);
+
+    @GET("paymentAccounts")
+    Call<ApiResponse<List<PaymentAccountResponse>>> getPaymentAccounts(@Query("payment_method_id") String payment_method_id,
+                                                                      @Header("Authorization") String token);
+
+    @POST("transactions/{id}")
     Call<ApiResponse<com.boardinglabs.mireta.standalone.component.network.entities.Trx.TransactionResponse>> updateTransaction(@Path("id") String id,
-                                                                                                                               @Field("status") int status,
+                                                                                                                               @Body RequestBody requestBody,
                                                                                                                                @Header("Authorization") String token);
+    @GET("damagedStocks")
+    Call<ApiResponse<List<DamagedStocks>>> getDamagedStocks(@Query("location_operation_id") String location_operation_id,
+                                                          @Header("Authorization") String token);
+
+    @GET("productReceipts")
+    Call<ApiResponse<List<ProductReceiptResponse>>> getProductReceipt(@Query("location_id") String location_id,
+                                                                      @Query("product_receipt_date_start") String product_receipt_date_start,
+                                                                      @Query("product_receipt_date_end") String product_receipt_date_end,
+                                                                      @Header("Authorization") String token);
+
+    @Headers("Content-Type: application/json")
+    @POST("productReceipts")
+    Call<ResponseBody> addProductReceipt(@Body RequestProductReceipt requestProductReceipt,
+                                         @Header("Authorization") String token);
 }

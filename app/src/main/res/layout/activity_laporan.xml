@@ -42,6 +42,38 @@
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
+    <android.support.v7.widget.CardView
+        android:id="@+id/btnLaporanStok"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="4dp"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/d16">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:textColor="@color/Black"
+                android:paddingTop="@dimen/d8"
+                android:drawableEnd="@drawable/ic_chevron_right_black_24dp"
+                android:text="Laporan Stok"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
     <View
         android:layout_width="wrap_content"
         android:layout_height="@dimen/d6"/>
@@ -82,7 +114,7 @@
         android:layout_height="@dimen/d6"/>
 
     <android.support.v7.widget.CardView
-        android:visibility="visible"
+        android:visibility="gone"
         android:id="@+id/btnSettlement"
         android:layout_width="match_parent"
         android:layout_height="65dp"

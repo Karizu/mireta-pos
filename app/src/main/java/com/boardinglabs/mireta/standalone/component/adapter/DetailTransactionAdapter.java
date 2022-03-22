@@ -7,6 +7,10 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StrikethroughSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +20,7 @@ import android.widget.TextView;
 
 import com.boardinglabs.mireta.standalone.R;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionDetailModel;
+import com.boardinglabs.mireta.standalone.component.util.MethodUtil;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -50,15 +55,26 @@ public class DetailTransactionAdapter extends RecyclerView.Adapter<DetailTransac
         final String discount = transactionDetailModel.getDiscount();
         final String price = transactionDetailModel.getPrice();
         final String quantity = transactionDetailModel.getQuantity();
+        final String totalPrice = transactionDetailModel.getTotal_price();
+        String desc = transactionDetailModel.getDesc()==null?"-":transactionDetailModel.getDesc();
+        desc = desc.equals("")?desc:"(" + transactionDetailModel.getDesc()+ ")";
 
-        int mDiscount = Integer.parseInt(discount);
-        int mAmount = Integer.parseInt(price);
+        int mDiscount = Integer.parseInt(discount) * Integer.parseInt(quantity);
+        int mAmount = Integer.parseInt(price) * Integer.parseInt(quantity);
+        int mPrice = Integer.parseInt(totalPrice) * Integer.parseInt(quantity);
 
         holder.tvItemName.setText(item_name);
-        holder.tvQty.setText(quantity + " Pcs");
-        holder.tvDiscount.setText("Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mDiscount));
-        holder.tvAmount.setText("Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mAmount));
+        holder.tvQty.setText(quantity + " x ");
+        holder.tvRealPrice.setText("" + NumberFormat.getNumberInstance(Locale.US).format(Integer.parseInt(totalPrice)));
 
+        holder.tvDiscount.setText("-" + NumberFormat.getNumberInstance(Locale.US).format(mDiscount));
+        if (mDiscount==0){
+            holder.layoutDiscount.setVisibility(View.GONE);
+        }
+
+        holder.tvAmount.setText("Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mPrice));
+        holder.tvItemDesc.setText(desc);
+        holder.tvTotal.setText("Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mAmount));
         holder.layoutDetailTransaksi.setOnClickListener(view -> {
 //            View viewSheet = LayoutInflater.from(view.getContext()).inflate(R.layout.find_outreach_worker_bottom_sheet_dialog, null);
 //            Log.d( "onClick: ",String.valueOf(viewSheet));
@@ -74,20 +90,23 @@ public class DetailTransactionAdapter extends RecyclerView.Adapter<DetailTransac
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvItemName;
+        TextView tvItemName, tvItemDesc, tvTotal, tvRealPrice;
         TextView tvAmount;
         TextView tvDiscount;
         TextView tvQty;
-        LinearLayout layoutDetailTransaksi;
+        LinearLayout layoutDetailTransaksi, layoutDiscount;
 
         ViewHolder(View v){
             super(v);
-
+            tvItemDesc = v.findViewById(R.id.tvItemDesc);
             tvItemName = v.findViewById(R.id.tvItemName);
             tvAmount = v.findViewById(R.id.tvAmount);
             tvDiscount = v.findViewById(R.id.tvDiscount);
             tvQty = v.findViewById(R.id.tvQty);
+            tvTotal = v.findViewById(R.id.tvTotal);
+            tvRealPrice = v.findViewById(R.id.tvRealPrice);
             layoutDetailTransaksi = v.findViewById(R.id.layoutDetailTransaksi);
+            layoutDiscount = v.findViewById(R.id.layoutDiscount);
         }
     }
 

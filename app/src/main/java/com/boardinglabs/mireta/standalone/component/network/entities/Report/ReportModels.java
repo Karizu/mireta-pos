@@ -1,5 +1,7 @@
 package com.boardinglabs.mireta.standalone.component.network.entities.Report;
 
+import java.util.List;
+
 public class ReportModels {
     private int item_id;
     private String item_name;

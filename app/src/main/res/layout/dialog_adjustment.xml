@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/border_round_white"
+            android:weightSum="2"
+            android:padding="@dimen/d16">
+
+            <TextView
+                android:id="@+id/tvTitleBarang"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:text="Laporkan Perbedaan"
+                android:textAllCaps="true"
+                android:textColor="@color/mireta_blue"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/d8"
+            android:layout_marginStart="@dimen/d16"
+            android:layout_marginEnd="@dimen/d16"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/etNominal"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/border_round_white"
+                android:hint="Masukan Nominal"
+                android:inputType="number"
+                android:paddingStart="@dimen/d16"
+                android:textSize="13sp"
+                tools:ignore="HardcodedText,RtlSymmetry" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/d8"
+            android:layout_marginStart="@dimen/d16"
+            android:layout_marginEnd="@dimen/d16"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/etKaterangan"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/border_round_white"
+                android:hint="Masukan Alasan Pelaporan"
+                android:paddingStart="@dimen/d16"
+                android:textSize="13sp"
+                tools:ignore="HardcodedText,RtlSymmetry" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnProses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/d20"
+            android:layout_marginStart="@dimen/d16"
+            android:layout_marginEnd="@dimen/d16"
+            android:layout_marginBottom="@dimen/d8"
+            android:background="@drawable/background_button"
+            android:textColor="@color/white"
+            android:text="Proses"/>
+
+    </LinearLayout>
+
+</LinearLayout>

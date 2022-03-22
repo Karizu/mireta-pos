@@ -2,6 +2,9 @@
 package com.boardinglabs.mireta.standalone.component.network.entities.Trx;
 
 import java.io.Serializable;
+
+import com.boardinglabs.mireta.standalone.component.network.entities.Business;
+import com.boardinglabs.mireta.standalone.component.network.entities.Items.Brand;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -50,6 +53,12 @@ public class Location implements Serializable
     @SerializedName("deleted_at")
     @Expose
     private String deletedAt;
+    @SerializedName("business")
+    @Expose
+    private Business business;
+    @SerializedName("brand")
+    @Expose
+    private Brand brand;
     private final static long serialVersionUID = 603770289953142025L;
 
     public Integer getId() {
@@ -164,4 +173,19 @@ public class Location implements Serializable
         this.deletedAt = deletedAt;
     }
 
+    public Business getBusiness() {
+        return business;
+    }
+
+    public void setBusiness(Business business) {
+        this.business = business;
+    }
+
+    public Brand getBrand() {
+        return brand;
+    }
+
+    public void setBrand(Brand brand) {
+        this.brand = brand;
+    }
 }

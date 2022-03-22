@@ -2,19 +2,25 @@ package com.boardinglabs.mireta.standalone.modul.history;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,12 +40,18 @@ import com.boardinglabs.mireta.standalone.component.BluetoothHandler;
 import com.boardinglabs.mireta.standalone.component.DeviceActivity;
 import com.boardinglabs.mireta.standalone.component.PrinterCommands;
 import com.boardinglabs.mireta.standalone.component.adapter.DetailTransactionAdapter;
+import com.boardinglabs.mireta.standalone.component.adapter.DiscountDetailAdapter;
+import com.boardinglabs.mireta.standalone.component.adapter.PaymentAccountAdapter;
+import com.boardinglabs.mireta.standalone.component.adapter.PaymentMethodAdapter;
 import com.boardinglabs.mireta.standalone.component.network.Api;
 import com.boardinglabs.mireta.standalone.component.network.ApiLocal;
 import com.boardinglabs.mireta.standalone.component.network.NetworkService;
+import com.boardinglabs.mireta.standalone.component.network.entities.PaymentAccountResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.PaymentMethodResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionDetailModel;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionHeader;
 import com.boardinglabs.mireta.standalone.component.network.entities.Trx.Detail;
+import com.boardinglabs.mireta.standalone.component.network.entities.Trx.DiscountResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.Trx.TransactionResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.Trx.Transactions;
 import com.boardinglabs.mireta.standalone.component.network.response.ApiResponse;
@@ -64,15 +76,17 @@ import com.wizarpos.apidemo.printer.PrintSize;
 import com.zj.btsdk.BluetoothService;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -81,6 +95,7 @@ import java.util.Objects;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -92,17 +107,27 @@ import retrofit2.Response;
 public class DetailTransactionActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks, BluetoothHandler.HandlerInterface {
 
     private static final int SUCCESS = 2;
+    private static final int PENDING = 1;
+    private static final int FAILED = 3;
     private List<TransactionDetailModel> transactionDetails;
     private DetailTransactionAdapter adapter;
+    private PaymentAccountAdapter accountAdapter;
     public static final int RC_BLUETOOTH = 0;
     public static final int RC_CONNECT_DEVICE = 1;
     public static final int RC_ENABLE_BLUETOOTH = 2;
-    private BluetoothService mService = null;
     private boolean isPrinterReady = false;
     private BluetoothDevice mDevice;
+    private BluetoothService mService = null;
     private TransactionHeader transactionHeader;
     private Transactions transaction;
     private List<Detail> res;
+    private boolean isFromReport = false;
+
+    private Bitmap selectedImage;
+    private Bitmap photoImage;
+    private static final int CAMERA_REQUEST_CODE = 1111;
+    private final int REQEUST_CAMERA = 1, REQUEST_GALLERY = 2222;
+    private File imageCheck;
 
     private PrinterDevice printerDevice;
     private Format format;
@@ -111,9 +136,13 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
     private Context context = DetailTransactionActivity.this;
     private String whatToDo, sisaSaldo;
     private String order_date, order_time, member_name, member_lulusan, member_angkatan, sKembalian, mNomBayar = null;
-    private int PAYMENT_METHOD;
+    private int PAYMENT_METHOD = 0;
+    private int PAYMENT_ACCOUNT = 0;
+    private int CASH_METHOD = 1;
     private int QRIS_METHOD = 2;
+    private int TRANSFER_METHOD = 3;
     private String order_no, total;
+    private Activity activity = DetailTransactionActivity.this;
 
     @BindView(R.id.tvNameTenant)
     TextView tvNameTenant;
@@ -125,12 +154,16 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
     TextView tvBusinessAddress;
     @BindView(R.id.tvDiscount)
     TextView tvDiscount;
+    @BindView(R.id.layoutDiscount)
+    LinearLayout layoutDiscount;
     @BindView(R.id.tvOrderDate)
     TextView tvOrderDate;
     @BindView(R.id.tvStatusOrder)
     TextView tvStatusOrder;
     @BindView(R.id.tvOrderNo)
     TextView tvOrderNo;
+    @BindView(R.id.tvSubTotal)
+    TextView tvSubTotal;
     @BindView(R.id.btnBayar)
     Button btnBayar;
     @BindView(R.id.btnPrintCopy)
@@ -143,32 +176,90 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
     RecyclerView recyclerView;
     @BindView(R.id.swipeRefresh)
     SwipeRefreshLayout refreshLayout;
-    @BindView(R.id.layout_qris)
-    LinearLayout layout_qris;
+    @BindView(R.id.tvPaymentMethod)
+    TextView tvPaymentMethod;
+    @BindView(R.id.rvPaymentMethod)
+    RecyclerView rvPaymentMethod;
+    @BindView(R.id.titleMethodPayment)
+    TextView titleMethodPayment;
+    @BindView(R.id.btnKonfirmasi)
+    Button btnKonfirmasi;
+    @BindView(R.id.tvPaymentMethodName)
+    TextView tvPaymentMethodName;
+    @BindView(R.id.tvPaymentType)
+    TextView tvPaymentType;
+    @BindView(R.id.btnUploadImage)
+    Button btnUploadImage;
+    @BindView(R.id.rvDiscountDetail)
+    RecyclerView rvDiscountDetail;
 
     private Dialog dialog;
     private int loop = 0;
+    private boolean isButtonPrintClicked = false;
+
+    @OnClick(R.id.btnUpdateNetPrice)
+    void onClickBtnUpdateNetPrice(){
+        showDialogLayout(R.layout.dialog_update_price);
+        EditText etNominal = dialog.findViewById(R.id.etNominal);
+        Button btnProses = dialog.findViewById(R.id.btnProses);
+
+        MethodUtil.setCurrency(etNominal);
+
+        btnProses.setOnClickListener(v -> {
+            int nominal = Integer.parseInt(etNominal.getText().toString().replace(".", ""));
+            int total_price = Integer.parseInt(transaction.getTotalPrice());
+            int total_discount = Integer.parseInt(transaction.getTotalDiscount());
+
+            int thirdPartyFeeTax = total_price - total_discount - nominal;
+
+            updateNetPriceTransaction(order_no, etNominal.getText().toString(), String.valueOf(thirdPartyFeeTax));
+            dialog.dismiss();
+        });
+    }
+
+    @OnClick(R.id.btnUploadImage)
+    void onClickUploadImage(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE);
+        } else {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(intent, CAMERA_REQUEST_CODE);
+        }
+    }
 
     @OnClick(R.id.btnKonfirmasi)
     void btnKonfirmasi(){
-        updateTransaction(order_no, SUCCESS);
+//        selectImage();
+        if (PAYMENT_METHOD == TRANSFER_METHOD || PAYMENT_METHOD == QRIS_METHOD) {
+            selectImage();
+        } else if (PAYMENT_METHOD == 0) {
+            showDialogLayout(R.layout.dialog_payment_method);
+            RecyclerView rvPaymentMethod = dialog.findViewById(R.id.rvPaymentMethod);
+            Button btnSkip = dialog.findViewById(R.id.btnSkip);
+            LinearLayout layoutOr = dialog.findViewById(R.id.layoutOr);
+            getPaymentMethod(rvPaymentMethod);
+
+            btnSkip.setVisibility(View.GONE);
+            layoutOr.setVisibility(View.GONE);
+        } else {
+            updateTransaction(order_no, SUCCESS + "");
+        }
     }
 
+    @SuppressLint("SetTextI18n")
     @OnClick(R.id.btnVoid)
     void onClickVoid() {
         showDialogLayout(R.layout.layout_input_password);
+        TextView tvDesc = dialog.findViewById(R.id.etMasterKey);
         EditText etPassword = dialog.findViewById(R.id.etPassword);
         Button btnProses = dialog.findViewById(R.id.btnProses);
+        etPassword.setVisibility(View.GONE);
+        tvDesc.setText("Apakah anda yakin ingin membatalkan pesanan?");
         btnProses.setOnClickListener(v -> {
-            if (etPassword.getText().toString().equals(PreferenceManager.getPassVoid())) {
-                doCheckSettled();
-                dialog.dismiss();
-            } else {
-                dialog.dismiss();
-                showDialogLayout(R.layout.layout_wrong_pass);
-                Button btnOk = dialog.findViewById(R.id.btnOK);
-                btnOk.setOnClickListener(v1 -> dialog.dismiss());
-            }
+            dialog.dismiss();
+            updateTransaction(order_no, FAILED+"");
         });
     }
 
@@ -185,7 +276,7 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
         StrictMode.setThreadPolicy(policy);
 
         setToolbarTitle("Detail Transaksi");
-
+        isFromReport = getIntent().getBooleanExtra("isFromReport", false);
         try {
             System.out.println(PreferenceManager.getBitmapHeader());
         } catch (Exception e){
@@ -235,20 +326,16 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
         if (order_no != null) {
             refreshLayout.setRefreshing(true);
             getDetailTransaction(order_no);
-            tvAmount.setText("Rp. " + MethodUtil.toCurrencyFormat(Long.toString(mTotal)));
             tvNameTenant.setText(loginBusiness.name);
             tvBusinessAddress.setText(loginBusiness.address);
-            tvBusinessPhone.setText(loginStockLocation.telp != null ? loginStockLocation.telp : "");
+            tvBusinessPhone.setText(loginStockLocation.location.getPhone() != null ? loginStockLocation.location.getPhone() : "-");
         }
 
         String finalOrder_no = order_no;
         refreshLayout.setOnRefreshListener(() -> {
-//            transactionDetails.clear();
-//            getDetailTransaction(finalOrder_no);
             refreshLayout.setRefreshing(false);
         });
         setupBluetooth();
-
     }
 
     private Handler handler = new Handler();
@@ -274,35 +361,170 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
     }
 
     @Override
+    public void onBackPressed() {
+        if (isFromReport) {
+            super.onBackPressed();
+        } else {
+            Intent intent = new Intent(DetailTransactionActivity.this, HomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+    }
+
+    @Override
     protected void onSubmitBtnPressed() {
 
     }
 
-    private void doCheckSettled(){
+    private void getPaymentMethod(RecyclerView rvPaymentMethod){
         Loading.show(context);
-
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("transaction_code", transaction.getTransactionCode())
-                .build();
-        ApiLocal.apiInterface().doCheckSettled(requestBody, "Bearer "+PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse>() {
+        ApiLocal.apiInterface().getPaymentMethods("asc", "id", loginStockLocation.location_id, PreferenceManager.getOperationData().getId() + "", "Bearer " + PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<List<PaymentMethodResponse>>>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+            public void onResponse(Call<ApiResponse<List<PaymentMethodResponse>>> call, Response<ApiResponse<List<PaymentMethodResponse>>> response) {
                 Loading.hide(context);
-                if (response.isSuccessful()){
-                    Log.d("TAG", "MASUK CEK SETTLE");
-                    doVoid();
-                } else {
-                    if (response.message().equals("Forbidden")){
-                        Toast.makeText(context, "Transaksi yang sudah disettle tidak bisa dibatalkan", Toast.LENGTH_SHORT).show();
+                try {
+                    if (response.isSuccessful()){
+                        List<PaymentMethodResponse> methodResponseList = response.body().getData();
+                        PaymentMethodAdapter adapter = new PaymentMethodAdapter(methodResponseList, activity, false);
+                        rvPaymentMethod.setAdapter(adapter);
                     } else {
-                        Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Terjadi kesalahan pada server", Toast.LENGTH_SHORT).show();
                     }
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
             }
 
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<List<PaymentMethodResponse>>> call, Throwable t) {
+                Loading.hide(context);
+                t.printStackTrace();
+            }
+        });
+    }
+
+    public void setDialogPaymentAccount(int id){
+        showDialogLayout(R.layout.dialog_payment_method);
+        RecyclerView rvPaymentMethod = dialog.findViewById(R.id.rvPaymentMethod);
+        Button btnSkip = dialog.findViewById(R.id.btnSkip);
+        LinearLayout layoutOr = dialog.findViewById(R.id.layoutOr);
+        getPaymentAccountFromDialog(id, rvPaymentMethod);
+
+        btnSkip.setVisibility(View.GONE);
+        layoutOr.setVisibility(View.GONE);
+    }
+
+    public void setPaymentMethod(int paymentMethod) {
+        this.PAYMENT_METHOD = paymentMethod;
+    }
+
+    public void setPaymentAccount(int paymentAccount) {
+        this.PAYMENT_ACCOUNT = paymentAccount;
+    }
+
+    public void sendToPayment(boolean thereIsNoPaymentAccount) {
+        if (thereIsNoPaymentAccount) {
+            PAYMENT_ACCOUNT = 0;
+            updateTransactionWithPaymentMethod(order_no, SUCCESS + "");
+        } else {
+            updateTransactionWithPaymentMethod(order_no,  PENDING + "");
+//            selectImage();
+        }
+    }
+
+    private void getPaymentAccountFromDialog(int id, RecyclerView rvPaymentMethod) {
+        Loading.show(context);
+        ApiLocal.apiInterface().getPaymentAccounts(id+"", "Bearer " + PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<List<PaymentAccountResponse>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<PaymentAccountResponse>>> call, Response<ApiResponse<List<PaymentAccountResponse>>> response) {
+                Loading.hide(context);
+                try {
+                    if (response.isSuccessful()) {
+                        List<PaymentAccountResponse> accountResponseList = response.body().getData();
+                        if (accountResponseList.size() > 0) {
+                            List<PaymentMethodResponse> methodResponseList = new ArrayList<>();
+
+                            for (PaymentAccountResponse accountResponse : accountResponseList) {
+                                PaymentMethodResponse methodResponse = new PaymentMethodResponse();
+                                methodResponse.setId(accountResponse.getId());
+                                methodResponse.setName(accountResponse.getAccountBankName());
+                                methodResponse.setCreatedAt(accountResponse.getCreatedAt());
+                                methodResponseList.add(methodResponse);
+                            }
+
+                            PaymentMethodAdapter adapter = new PaymentMethodAdapter(methodResponseList, activity, true);
+                            rvPaymentMethod.setAdapter(adapter);
+
+                        } else {
+                            sendToPayment(true);
+                        }
+                    } else {
+                        Toast.makeText(context, "Terjadi kesalahan pada server", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<PaymentAccountResponse>>> call, Throwable t) {
+                Loading.hide(context);
+                t.printStackTrace();
+            }
+        });
+    }
+
+    private void getPaymentAccounts(int PAYMENT_METHOD, int mStatus){
+        Loading.show(context);
+        ApiLocal.apiInterface().getPaymentAccounts(PAYMENT_METHOD + "", "Bearer " + PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<List<PaymentAccountResponse>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<PaymentAccountResponse>>> call, Response<ApiResponse<List<PaymentAccountResponse>>> response) {
+                Loading.hide(context);
+                try {
+                    if (response.isSuccessful()){
+                        List<PaymentAccountResponse> responseList = Objects.requireNonNull(response.body()).getData();
+                        if (responseList.size() > 0) {
+                            String paymentMethod = responseList.get(0).getPaymentMethod().getName();
+
+                            tvPaymentMethod.setText(paymentMethod);
+                            accountAdapter = new PaymentAccountAdapter(responseList, context);
+                            rvPaymentMethod.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+                            rvPaymentMethod.setAdapter(accountAdapter);
+
+                            tvPaymentMethod.setVisibility(View.VISIBLE);
+                            titleMethodPayment.setVisibility(View.VISIBLE);
+                            btnKonfirmasi.setVisibility(View.GONE);
+
+                            if (mStatus == PENDING){
+                                btnUploadImage.setVisibility(View.VISIBLE);
+
+                                showDialogLayout(R.layout.dialog_upload_image);
+                                Button btnUpload = dialog.findViewById(R.id.btnUpload);
+                                Button btnSkip = dialog.findViewById(R.id.btnSkip);
+
+                                btnUpload.setOnClickListener(v -> {
+                                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                                            == PackageManager.PERMISSION_DENIED) {
+                                        ActivityCompat.requestPermissions(activity,
+                                                new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE);
+                                    } else {
+                                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                        startActivityForResult(intent, CAMERA_REQUEST_CODE);
+                                    }
+                                });
+                                btnSkip.setOnClickListener(v -> dialog.dismiss());
+                            }
+                        }
+                    } else {
+                        Toast.makeText(context, "Terjadi kesalahan pada server", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<PaymentAccountResponse>>> call, Throwable t) {
                 Loading.hide(context);
                 t.printStackTrace();
             }
@@ -413,8 +635,7 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
             }
         });
     }
-
-
+    
     public void printStruk() {
         try {
             str = context.getString(R.string.openingPrint) + "\n";
@@ -458,7 +679,7 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                             format.setParameter("size", "medium");
 
                             try {
-                                Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.logo_bjbs);
+                                Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.pd_logo_resi);
                                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                                 printerDevice.printBitmap(format, bitmap);
@@ -467,16 +688,25 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                                 e.printStackTrace();
                             }
 
+                            String metodeBayar = transaction.getPaymentMethodObj()!=null?transaction.getPaymentMethodObj().getName():"-";
+                            String tipeTransaksi = transaction.getTransactionTypeObj()!=null?transaction.getTransactionTypeObj().getName():"-";
+
                             printerDevice.printText(format, loginBusiness.name.toUpperCase() + "\n" +
                                     loginBusiness.address + "\n");
-                            printerDevice.printText(format, loginStockLocation.telp != null ? loginStockLocation.telp + "\n": "-" + "\n");
+                            printerDevice.printlnText(format, loginStockLocation.telp != null ? loginStockLocation.telp + "\n": "-" + "\n");
+                            format.clear();
+                            format.setParameter("align", "center");
+                            format.setParameter("size", "medium");
+                            printerDevice.printText(format, getPrintLabelValue("Kasir", loginUser.fullname, false, true));
                             format.clear();
                             format.setParameter("align", "center");
                             format.setParameter("size", "medium");
                             printerDevice.printText(format, "--------------------------------\n");
-                            printerDevice.printText(format, order_date + "                " + order_time + "\n");
-                            format.setParameter("bold", "true");
-                            printerDevice.printText(format, "Order No:    " + transaction.getTransactionCode() + "\n");
+                            printerDevice.printlnText(format, getPrintLabelValue(order_date, order_time, false, true));
+                            printerDevice.printText(format, getPrintLabelValue("Status:", tvStatusOrder.getText().toString(), false, true));
+                            printerDevice.printText(format, getPrintLabelValue("Order No:", transaction.getTransactionCode(), false, true));
+                            printerDevice.printText(format, getPrintLabelValue("Metode Bayar:", metodeBayar, false, true));
+                            printerDevice.printText(format, getPrintLabelValue("Tipe Transaksi:", tipeTransaksi, false, true));
                             format.clear();
                             format.setParameter("align", "center");
                             format.setParameter("size", "medium");
@@ -496,76 +726,46 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                             for (int i = 0; i < res.size(); i++) {
 
                                 Detail detail = res.get(i);
-                                int mAmount = Integer.parseInt(detail.getSalesPrice());
+                                int mAmount = Integer.parseInt(detail.getTotalPrice());
                                 int mQty = Integer.parseInt(detail.getQty());
                                 int mGrandPrice = mAmount * mQty;
+                                int mDiskon = Integer.parseInt(detail.getItemDiscount()) * mQty;
+                                int netPrice = Integer.parseInt(detail.getSalesPrice()) * mQty;
+                                String detailItem = detail.getDescription();
 
                                 item = detail.getStock().getItem().getName();
-                                String qty = detail.getQty() + " x ";
+                                String qty = detail.getQty() + "x";
                                 String price = "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mAmount);
                                 grandPrice = "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mGrandPrice);
 
+
                                 format.clear();
                                 format.setParameter("align", "left");
                                 format.setParameter("size", "medium");
-                                printerDevice.printText(format, item + "\n" +
-                                        qty + price + "\n");
-                                format.clear();
-                                format.setParameter("align", "right");
-                                format.setParameter("size", "medium");
-                                printerDevice.printText(format, grandPrice + "\n");
+                                printerDevice.printText(format, getPrintLabelValue(item + " " + qty, grandPrice, false, true));
+
                                 format.clear();
                                 format.setParameter("align", "left");
                                 format.setParameter("size", "medium");
+                                if (mDiskon != 0) printerDevice.printText(format, getPrintLabelValue("Hemat -Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mDiskon), "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(netPrice), false, true));
+
+                                format.clear();
+                                format.setParameter("align", "left");
+                                format.setParameter("size", "medium");
+                                if (!detailItem.equals("")) printerDevice.printlnText(format, "Detail:");
+                                if (!detailItem.equals("")) printerDevice.printlnText(format, detailItem + "\n");
                             }
+
+                            format.clear();
+                            format.setParameter("align", "left");
+                            format.setParameter("size", "medium");
 
                             printerDevice.printText(format, "--------------------------------\n");
-
-                            item = "TOTAL :";
-                            grandPrice = "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mTotal);
-                            printerDevice.printText(format, item + "\n");
-                            format.clear();
-                            format.setParameter("align", "right");
-                            format.setParameter("size", "medium");
-                            printerDevice.printText(format, grandPrice + "\n");
-
-
-//                            int nomBayar = Integer.parseInt(mNomBayar);
-//                            grandPrice = "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(nomBayar);
-//                            format.setParameter("align", "left");
-//                            format.setParameter("size", "medium");
-//                            printerDevice.printText(format, "BAYAR DENGAN ARDI :" + "\n");
-//                            format.clear();
-//                            format.setParameter("align", "right");
-//                            format.setParameter("size", "medium");
-//                            printerDevice.printText(format, grandPrice + "\n");
-
-//                            int mKembalian = Integer.parseInt(sKembalian);
-//                            grandPrice = "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mKembalian);
-//                            format.setParameter("align", "left");
-//                            format.setParameter("size", "medium");
-//                            printerDevice.printText(format, "KEMBALI :" + "\n");
-//                            format.clear();
-//                            format.setParameter("align", "right");
-//                            format.setParameter("size", "medium");
-//                            printerDevice.printText(format, grandPrice + "\n");
-
-                            try {
-                                int mSisaSaldo = Integer.parseInt(sisaSaldo);
+                            printerDevice.printText(format, getPrintLabelValue("TOTAL :", "Rp. " + MethodUtil.toCurrencyFormat(transaction.getTotalNetPrice()), false, true));
+                            if (!transaction.getTotalDiscount().equals("0")){
                                 printerDevice.printText(format, "--------------------------------\n");
-
-                                format.setParameter("align", "left");
-                                format.setParameter("size", "medium");
-                                printerDevice.printText(format, "Sisa Saldo :" + "\n");
-                                format.clear();
-                                format.setParameter("align", "right");
-                                format.setParameter("size", "medium");
-                                printerDevice.printText(format, "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mSisaSaldo) + "\n");
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                                printerDevice.printText(format, getPrintLabelValue("Total Hemat", "-Rp. " + MethodUtil.toCurrencyFormat(transaction.getTotalDiscount()), false, true));
                             }
-
                             printerDevice.printText(format, "--------------------------------\n\n");
 
                             format.clear();
@@ -602,6 +802,74 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
         }
     }
 
+    private String getPrintLabelValue(String label, String value, boolean usingNextLine, boolean endWithNewLine){
+        int lineCharCount = 32;
+        int labelCharCount = label.length();
+        int valueCharCount = value.length();
+
+        if (labelCharCount + valueCharCount > (lineCharCount-2)){
+            usingNextLine = true;
+        }
+
+        String output = "";
+        if (!usingNextLine){
+            output += label;
+            for (int i = labelCharCount; i < lineCharCount-valueCharCount; i++){
+                output += " ";
+            }
+            output += value;
+        }
+        else{
+            output = label;
+            for (int i = labelCharCount; i < lineCharCount; i++){
+                output += " ";
+            }
+            output += "\n";
+            for (int i = 0; i < valueCharCount; i++){
+                output += " ";
+            }
+            output += value;
+        }
+        if (endWithNewLine){
+            output += "\n";
+        }
+        return output;
+    }
+
+    private String getPrintBTLabelValue(String label, String value, boolean usingNextLine, boolean endWithNewLine){
+        int lineCharCount = 42;
+        int labelCharCount = label.length();
+        int valueCharCount = value.length();
+
+        if (labelCharCount + valueCharCount > (lineCharCount-2)){
+            usingNextLine = true;
+        }
+
+        String output = "";
+        if (!usingNextLine){
+            output += label;
+            for (int i = labelCharCount; i < lineCharCount-valueCharCount; i++){
+                output += " ";
+            }
+            output += value;
+        }
+        else{
+            output = label;
+            for (int i = labelCharCount; i < lineCharCount; i++){
+                output += " ";
+            }
+            output += "\n";
+            for (int i = 0; i < valueCharCount; i++){
+                output += " ";
+            }
+            output += value;
+        }
+        if (endWithNewLine){
+            output += "";
+        }
+        return output;
+    }
+
     private void closePrinter() {
         try {
                 printerDevice.close();
@@ -634,10 +902,9 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
             closePrinter();
             printStruk();
         } else {
+            isButtonPrintClicked = true;
             printText();
         }
-//        printText();
-//        doPrintStruk();
     }
 
     public void printText() {
@@ -647,7 +914,6 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
         }
 
         if (isPrinterReady) {
-
             mService.write(PrinterCommands.CENTER_ALIGN);
             try {
                 BitmapFactory.Options o = new BitmapFactory.Options();
@@ -655,10 +921,8 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                 BitmapFactory.decodeResource(context.getResources(),
                         R.drawable.pd_logo_black_white, o);
 
-                //The new size we want to scale to
                 final int REQUIRED_WIDTH=150;
                 final int REQUIRED_HIGHT=75;
-                //Find the correct scale value. It should be the power of 2.
                 int scale=1;
                 while(o.outWidth/scale/2>=REQUIRED_WIDTH && o.outHeight/scale/2>=REQUIRED_HIGHT)
                     scale*=2;
@@ -667,11 +931,12 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                 BitmapFactory.Options o2 = new BitmapFactory.Options();
                 o2.inSampleSize=scale;
 
-                Bitmap bmp = BitmapFactory.decodeResource(context.getResources(),
-                        R.drawable.pd_logo_black_white, o2);
-//                Bitmap bmp = getBitmapFromURL(NetworkService.BASE_URL_IMAGE + PreferenceManager.getStockLocation().brand.getLogo_image_url());
+//                Bitmap bmp = BitmapFactory.decodeResource(context.getResources(),
+//                        R.drawable.pd_logo_black_white, o2);
+                Bitmap bmp = getBitmapFromURL(NetworkService.BASE_URL_IMAGE + PreferenceManager.getStockLocation().location.getBrand().getLogo_image_url());;
                 if(bmp!=null){
                     byte[] command = Utils.decodeBitmap(bmp);
+                    Log.d("byte", Arrays.toString(command) +"");
                     mService.write(command);
                     mService.sendMessage("\n", "");
                 }else{
@@ -681,33 +946,55 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                 e.printStackTrace();
                 Log.e("PrintTools", "the file isn't exists");
             }
-            mService.sendMessage(loginBusiness.name, "");
+
+            String brandName = loginStockLocation.location.getBrand().getName();
+            String locationName = loginStockLocation.location.getName();
+            String locationAddress = loginStockLocation.location.getAddress();
+            String locationPhone = loginStockLocation.location.getPhone()!=null?loginStockLocation.location.getPhone():"-";
+            String cashierName = loginUser.fullname;
+            String orderStatus = tvStatusOrder.getText().toString();
+            String orderNo = transaction.getTransactionCode();
+            String metodeBayar = transaction.getPaymentMethodObj()!=null?transaction.getPaymentMethodObj().getName():"-";
+            String tipeTransaksi = transaction.getTransactionTypeObj()!=null?transaction.getTransactionTypeObj().getName():"-";
+
+            mService.sendMessage(brandName, "");
             mService.write(PrinterCommands.CENTER_ALIGN);
-            mService.sendMessage(loginBusiness.address, "");
+            mService.sendMessage(locationName, "");
             mService.write(PrinterCommands.CENTER_ALIGN);
-            mService.sendMessage("Bandung", "");
+            mService.sendMessage(locationAddress, "");
+            mService.write(PrinterCommands.CENTER_ALIGN);
+            mService.sendMessage(locationPhone, "");
             mService.write(PrinterCommands.ESC_ENTER);
-            mService.sendMessage("----------------------------------------", "");
+            mService.write(PrinterCommands.ESC_ENTER);
+            mService.sendMessage(getPrintBTLabelValue("Kasir", cashierName, false, true), "");
+            mService.sendMessage("------------------------------------------", "");
+            mService.write(PrinterCommands.ESC_ENTER);
+            mService.sendMessage(getPrintBTLabelValue(order_date, order_time, false, true), "");
+            mService.write(PrinterCommands.ESC_ENTER);
+            mService.sendMessage(getPrintBTLabelValue("Status: ", orderStatus, false, true), "");
+            mService.sendMessage(getPrintBTLabelValue("Order No: ", orderNo, false, true), "");
+            mService.sendMessage(getPrintBTLabelValue("Metode Bayar:", metodeBayar, false, true), "");
+            mService.sendMessage(getPrintBTLabelValue("Tipe Transaksi:", tipeTransaksi, false, true), "");
+            mService.sendMessage("------------------------------------------", "");
+            mService.write(PrinterCommands.ESC_ENTER);
             mService.write(PrinterCommands.ESC_ENTER);
             mService.write(PrinterCommands.CENTER_ALIGN);
             mService.sendMessage("Detail Transaksi", "");
-            mService.write(PrinterCommands.CENTER_ALIGN);
-            mService.sendMessage(order_date, "");
-            mService.write(PrinterCommands.CENTER_ALIGN);
-            mService.sendMessage("Order No: " + transaction.getTransactionCode(), "");
-            mService.write(PrinterCommands.ESC_ENTER);
-            mService.sendMessage("----------------------------------------", "");
-            mService.write(PrinterCommands.ESC_ENTER);
+            mService.sendMessage(getPrintBTLabelValue("  ", "  ", false, true), "");
+            mService.write(PrinterCommands.LEFT_ALIGN);
 
-            int mTotal = Integer.parseInt(transaction.getTotalPrice());
             String item, grandPrice;
 
             for (int i = 0; i < res.size(); i++) {
 
                 Detail detail = res.get(i);
-                int mAmount = Integer.parseInt(detail.getSalesPrice());
+
+                int mAmount = Integer.parseInt(detail.getTotalPrice());
                 int mQty = Integer.parseInt(detail.getQty());
                 int mGrandPrice = mAmount * mQty;
+                int mDiskon = Integer.parseInt(detail.getItemDiscount()) * mQty;
+                int netPrice = Integer.parseInt(detail.getSalesPrice()) * mQty;
+                String detailItem = detail.getDescription();
 
                 item = detail.getStock().getItem().getName();
                 String qty = detail.getQty() + " x ";
@@ -715,37 +1002,44 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                 grandPrice = "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mGrandPrice);
 
                 mService.write(PrinterCommands.LEFT_ALIGN);
-                mService.sendMessage(item, "");
-                mService.write(PrinterCommands.ESC_ENTER);
-                mService.write(PrinterCommands.LEFT_ALIGN);
-                mService.sendMessage(qty + price, "");
-                mService.write(PrinterCommands.RIGHT_ALIGN);
-                mService.sendMessage(grandPrice, "");
-                mService.write(PrinterCommands.ESC_ENTER);
+                mService.sendMessage(item, ""); mService.write(PrinterCommands.ESC_ENTER);
+                mService.sendMessage(getPrintBTLabelValue(qty + price, grandPrice, false, true), "");
+                if (mDiskon != 0) mService.sendMessage(getPrintBTLabelValue("Hemat -Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mDiskon), "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(netPrice), false, true), "");
+
+                if (detail.getStock().getItem().getIsUpPrice() == 0) {
+                    if (!detailItem.equals("")){
+                        mService.sendMessage("(" + detailItem + ")", "");
+                    }
+                }
+
+                mService.sendMessage(getPrintBTLabelValue("  ", "  ", false, true), "");
                 mService.write(PrinterCommands.LEFT_ALIGN);
             }
 
-            item = "----------------------------------------";
+            item = "------------------------------------------";
 
             mService.write(PrinterCommands.CENTER_ALIGN);
             mService.sendMessage(item, "");
             mService.write(PrinterCommands.ESC_ENTER);
 
-            item = "TOTAL : ";
-            grandPrice = "Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mTotal);
-
-            mService.write(PrinterCommands.LEFT_ALIGN);
-            mService.sendMessage(item, "");
-            mService.write(PrinterCommands.RIGHT_ALIGN);
-            mService.sendMessage(grandPrice, "");
-            mService.write(PrinterCommands.ESC_ENTER);
-
-            item = "----------------------------------------\n\n";
+            mService.write(PrinterCommands.CENTER_ALIGN);
+            mService.sendMessage(getPrintBTLabelValue("TOTAL : ", "Rp. " + MethodUtil.toCurrencyFormat(transaction.getTotalNetPrice()), false, true), "");
+            if (!transaction.getTotalDiscount().equals("0")){
+                mService.sendMessage("------------------------------------------", "");
+                mService.sendMessage(getPrintBTLabelValue("Total Hemat", "-Rp. " + MethodUtil.toCurrencyFormat(transaction.getTotalDiscount()), false, true), "");
+                for(DiscountResponse response : transaction.getDiscounts()) {
+                    mService.sendMessage(getPrintBTLabelValue("    " + response.getDiscountDescription(), "-Rp. " + MethodUtil.toCurrencyFormat(response.getTotalDiscount()), false, true), "");
+                }
+            }
 
             mService.write(PrinterCommands.CENTER_ALIGN);
-            mService.sendMessage(item, "");
-            mService.sendMessage("Terimakasih sudah berbelanja\n\n\n", "");
+            mService.sendMessage("------------------------------------------", "");
+            mService.sendMessage(getPrintBTLabelValue("   ", "   ", false, true), "");
+            mService.sendMessage(getPrintBTLabelValue("   ", "   ", false, true), "");
+            mService.sendMessage("Terimakasih sudah berbelanja\n\n", "");
+            mService.sendMessage(getResources().getString(R.string.footer_print) + "\n\n\n", "");
 
+            isButtonPrintClicked = false;
         } else {
             if (mService.isBTopen())
                 startActivityForResult(new Intent(this, DeviceActivity.class), RC_CONNECT_DEVICE);
@@ -802,7 +1096,6 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                 refreshLayout.setRefreshing(false);
                 try {
                     transaction = response.body().getData();
-//                    transactionHeader = transaction.getTransaction_header();
                     res = transaction.getDetails();
 
                     for (int i = 0; i < res.size(); i++) {
@@ -810,7 +1103,14 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                         transactionDetails.add(new TransactionDetailModel(transactionDetail.getStock().getItem().getName(),
                                 transactionDetail.getQty(),
                                 transactionDetail.getSalesPrice(),
-                                transactionDetail.getItemDiscount()));
+                                transactionDetail.getTotalPrice(),
+                                transactionDetail.getItemDiscount(),
+                                transactionDetail.getDescription()));
+                    }
+
+                    if (transaction.getDiscounts().size() > 0) {
+                        DiscountDetailAdapter adapter = new DiscountDetailAdapter(transaction.getDiscounts(), context);
+                        rvDiscountDetail.setAdapter(adapter);
                     }
 
                     Gson gson = new Gson();
@@ -818,29 +1118,48 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                     Log.d("Json", json);
 
                     int mDiscount = Integer.parseInt(transaction.getTotalDiscount());
-                    int mAmount = Integer.parseInt(transaction.getTotalPrice());
+                    int netPrice = Integer.parseInt(transaction.getTotalNetPrice());
                     long amount = Long.parseLong(transaction.getTotalPrice());
                     int mStatus = Integer.parseInt(transaction.getStatus() + "");
+                    PAYMENT_METHOD = transaction.getPaymentMethod()!=null?transaction.getPaymentMethod():0;
+
                     tvOrderNo.setText(transaction.getTransactionCode());
-                    tvAmount.setText("Rp. " + MethodUtil.toCurrencyFormat(Long.toString(amount)));
-                    tvDiscount.setText("Rp. " + MethodUtil.toCurrencyFormat(String.valueOf(mDiscount)));
-                    tvOrderDate.setText(order_date);
+                    tvSubTotal.setText("Rp. " + MethodUtil.toCurrencyFormat(Long.toString(amount)));
+                    tvAmount.setText("Rp. " + MethodUtil.toCurrencyFormat(String.valueOf(netPrice)));
+                    if (mDiscount!=0){
+                        tvDiscount.setText("-Rp. " + MethodUtil.toCurrencyFormat(String.valueOf(mDiscount)));
+                    } else {
+                        layoutDiscount.setVisibility(View.GONE);
+                    }
+                    tvOrderDate.setText(order_date + " " + order_time);
+                    tvPaymentMethodName.setText(transaction.getPaymentMethodObj()!=null?transaction.getPaymentMethodObj().getName():"-");
+                    tvPaymentType.setText(transaction.getTransactionTypeObj()!=null?transaction.getTransactionTypeObj().getName():"-");
                     switch (mStatus) {
                         case 1:
                             tvStatusOrder.setText("PENDING");
                             //
-                            tvStatusOrder.setTextColor(ContextCompat.getColor(context, R.color.Red));
+                            tvStatusOrder.setTextColor(ContextCompat.getColor(context, R.color.RED));
                             btnBayar.setVisibility(View.GONE);
-                            btnPrint.setVisibility(View.GONE);
-                            btnVoid.setVisibility(View.GONE);
-                            layout_qris.setVisibility(View.VISIBLE);
+                            btnVoid.setVisibility(View.VISIBLE);
+                            btnPrint.setVisibility(View.VISIBLE);
+                            btnKonfirmasi.setVisibility(View.VISIBLE);
+                            btnPrint.setText("Print Struk Pesanan");
+                            getPaymentAccounts(PAYMENT_METHOD, mStatus);
                             break;
                         case 2:
+                            getPaymentAccounts(PAYMENT_METHOD, mStatus);
+
                             tvStatusOrder.setText("BERHASIL");
                             tvStatusOrder.setTextColor(ContextCompat.getColor(context, R.color.Green));
                             btnBayar.setVisibility(View.GONE);
                             btnPrint.setVisibility(View.VISIBLE);
                             btnVoid.setVisibility(View.GONE);
+                            btnUploadImage.setVisibility(View.GONE);
+
+                            btnPrint.setText("Print Struk Pembayaran");
+                            tvPaymentMethod.setVisibility(View.GONE);
+                            titleMethodPayment.setVisibility(View.GONE);
+                            btnKonfirmasi.setVisibility(View.GONE);
                             break;
                         case 3:
                             tvStatusOrder.setText("DIBATALKAN");
@@ -848,6 +1167,11 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                             btnBayar.setVisibility(View.GONE);
                             btnPrint.setVisibility(View.GONE);
                             btnVoid.setVisibility(View.GONE);
+                            btnUploadImage.setVisibility(View.GONE);
+
+                            tvPaymentMethod.setVisibility(View.GONE);
+                            titleMethodPayment.setVisibility(View.GONE);
+                            btnKonfirmasi.setVisibility(View.GONE);
                             break;
                     }
 
@@ -858,12 +1182,7 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
 
                     if (whatToDo != null) {
                         if (whatToDo.equals(Constant.DO_PRINT)) {
-                            if (manufacturer.equals("wizarPOS")) {
-                                closePrinter();
-                                printStruk();
-                            } else {
-                                printText();
-                            }
+                            printBtn();
                         }
                     }
 
@@ -880,9 +1199,81 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
         });
     }
 
-    private void updateTransaction(String id, int status){
+    private void updateTransactionWithPaymentMethod(String id, String status){
+        RequestBody requestBody;
+
+        if (photoImage != null) {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            photoImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+
+            requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("status", status)
+                    .addFormDataPart("payment_method", PAYMENT_METHOD+"")
+                    .addFormDataPart("payment_account", PAYMENT_ACCOUNT+"")
+                    .addFormDataPart("image", "photo.jpeg", RequestBody.create(MediaType.parse("image/jpeg"), byteArrayOutputStream.toByteArray()))
+                    .build();
+
+        } else if (selectedImage != null) {
+            File file = createTempFile(selectedImage);
+            requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("status", status)
+                    .addFormDataPart("payment_method", PAYMENT_METHOD+"")
+                    .addFormDataPart("payment_account", PAYMENT_ACCOUNT+"")
+                    .addFormDataPart("image", file.getName(), RequestBody.create(MediaType.parse("image/*"), file))
+                    .build();
+        } else {
+            requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("status", status)
+                    .addFormDataPart("payment_method", PAYMENT_METHOD+"")
+                    .addFormDataPart("payment_account", PAYMENT_ACCOUNT+"")
+                    .build();
+        }
+
         Loading.show(context);
-        ApiLocal.apiInterface().updateTransaction(id, status, "Bearer " + PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<TransactionResponse>>() {
+        ApiLocal.apiInterface().updateTransaction(id, requestBody, "Bearer " + PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<TransactionResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<TransactionResponse>> call, Response<ApiResponse<TransactionResponse>> response) {
+                Loading.hide(context);
+                try {
+                    if (response.isSuccessful()){
+                        Intent intent = new Intent(DetailTransactionActivity.this, DetailTransactionActivity.class);
+                        intent.putExtra("order_no", id);
+                        intent.putExtra("total", total);
+                        intent.putExtra("order_date", order_date);
+                        intent.putExtra("order_time", order_time);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        String msg = MethodUtil.getErrorResponse(response.errorBody().string());
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(context, "Terjadi kesalahan, silahkan periksa koneksi internet anda", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<TransactionResponse>> call, Throwable t) {
+                Loading.hide(context);
+                t.printStackTrace();
+            }
+        });
+    }
+
+    private void updateNetPriceTransaction(String id, String totalNetPrice, String thirdPartyFeeTax) {
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("third_party_fee_tax", thirdPartyFeeTax)
+                .addFormDataPart("total_net_price", totalNetPrice)
+                .build();
+
+        Loading.show(context);
+        ApiLocal.apiInterface().updateTransaction(id, requestBody, "Bearer " + PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<TransactionResponse>>() {
             @Override
             public void onResponse(Call<ApiResponse<TransactionResponse>> call, Response<ApiResponse<TransactionResponse>> response) {
                 Loading.hide(context);
@@ -899,7 +1290,70 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                         startActivity(intent);
                         finish();
                     } else {
-                        Toast.makeText(context, "Terjadi kesalahan, konfirmasi pembayaran gagal", Toast.LENGTH_SHORT).show();
+                        String msg = MethodUtil.getErrorResponse(response.errorBody().string());
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(context, "Terjadi kesalahan, silahkan periksa koneksi internet anda", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<TransactionResponse>> call, Throwable t) {
+                Loading.hide(context);
+                t.printStackTrace();
+            }
+        });
+    }
+
+    private void updateTransaction(String id, String status){
+        RequestBody requestBody;
+
+        if (photoImage != null) {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            photoImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+
+            requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("status", status)
+                    .addFormDataPart("image", "photo.jpeg", RequestBody.create(MediaType.parse("image/jpeg"), byteArrayOutputStream.toByteArray()))
+                    .build();
+
+        } else if (selectedImage != null) {
+            File file = createTempFile(selectedImage);
+            requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("status", status)
+                    .addFormDataPart("image", file.getName(), RequestBody.create(MediaType.parse("image/*"), file))
+                    .build();
+        } else {
+            requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("status", status)
+                    .build();
+        }
+
+        Loading.show(context);
+        ApiLocal.apiInterface().updateTransaction(id, requestBody, "Bearer " + PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<TransactionResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<TransactionResponse>> call, Response<ApiResponse<TransactionResponse>> response) {
+                Loading.hide(context);
+                try {
+                    if (response.isSuccessful()){
+                        TransactionResponse transactionModel = response.body().getData();
+
+                        Intent intent = new Intent(DetailTransactionActivity.this, DetailTransactionActivity.class);
+                        intent.putExtra("order_no", id);
+                        intent.putExtra("total", total);
+                        intent.putExtra("order_date", order_date);
+                        intent.putExtra("order_time", order_time);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        String msg = MethodUtil.getErrorResponse(response.errorBody().string());
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e){
                     e.printStackTrace();
@@ -987,6 +1441,54 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
         ESCPOSApi.printStruk(bitmap, data);
     }
 
+    private void selectImage() {
+        final CharSequence[] options = {"Take Photo", "Cancel"};
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(Objects.requireNonNull(this));
+        builder.setTitle("Upload Bukti Pembayaran");
+        builder.setItems(options, (dialog, item) -> {
+            if (options[item].equals("Take Photo")) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                        == PackageManager.PERMISSION_DENIED) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE);
+                } else {
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(intent, CAMERA_REQUEST_CODE);
+                }
+            }
+//            else if (options[item].equals("Choose From Gallery")) {
+//                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+//                photoPickerIntent.setType("image/*");
+//                startActivityForResult(photoPickerIntent, REQUEST_GALLERY);
+//            }
+            else if (options[item].equals("Cancel")) {
+                dialog.dismiss();
+            }
+
+        });
+        builder.show();
+    }
+
+    private File createTempFile(Bitmap bitmap) {
+        File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                , System.currentTimeMillis() + "_image.webp");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.WEBP, 0, bos);
+        byte[] bitmapdata = bos.toByteArray();
+        //write the bytes in file
+
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(bitmapdata);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -1005,6 +1507,46 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
                 }
                 break;
         }
+
+        if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            photoImage = (Bitmap) data.getExtras().get("data");
+            photoImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
+
+            try {
+                File outputDir = getCacheDir();
+                imageCheck = File.createTempFile("photo", "jpeg", outputDir);
+                FileOutputStream outputStream = openFileOutput("photo.jpeg", Context.MODE_PRIVATE);
+                outputStream.write(stream.toByteArray());
+                outputStream.close();
+                Log.d("Write File", "Success");
+
+                if (PAYMENT_ACCOUNT != 0) {
+                    updateTransactionWithPaymentMethod(order_no, SUCCESS + "");
+                } else {
+                    updateTransaction(order_no, SUCCESS + "");
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d("Write File", "Failed2");
+            }
+        } else if (requestCode == REQUEST_GALLERY && resultCode == RESULT_OK) {
+            try {
+                final Uri imageUri = data.getData();
+                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                selectedImage = BitmapFactory.decodeStream(imageStream);
+
+                if (PAYMENT_ACCOUNT != 0) {
+                    updateTransactionWithPaymentMethod(order_no, SUCCESS + "");
+                } else {
+                    updateTransaction(order_no, SUCCESS + "");
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -1013,6 +1555,10 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
         Loading.hide(context);
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Terhubung dengan perangkat", Snackbar.LENGTH_LONG);
         snackbar.show();
+
+        if (isButtonPrintClicked) {
+            printText();
+        }
     }
 
     @Override
@@ -1068,4 +1614,5 @@ public class DetailTransactionActivity extends BaseActivity implements EasyPermi
         dialog.show();
         dialog.getWindow().setAttributes(lp);
     }
+
 }

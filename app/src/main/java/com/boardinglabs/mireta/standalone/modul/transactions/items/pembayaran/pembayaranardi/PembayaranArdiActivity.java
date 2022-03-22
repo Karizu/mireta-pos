@@ -40,7 +40,9 @@ import com.boardinglabs.mireta.standalone.component.network.NetworkService;
 import com.boardinglabs.mireta.standalone.component.network.entities.Ardi.CheckMemberResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.Ardi.Members;
 import com.boardinglabs.mireta.standalone.component.network.entities.Ardi.Trx.TransactionArdi;
+import com.boardinglabs.mireta.standalone.component.network.entities.ChildItem.ItemsResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.Item;
+import com.boardinglabs.mireta.standalone.component.network.entities.ItemVariants.ItemVariants;
 import com.boardinglabs.mireta.standalone.component.network.entities.SecurityQuestions;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionPost;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionToCashier;
@@ -922,6 +924,11 @@ public class PembayaranArdiActivity extends BaseActivity implements ItemsView, C
 
     @Override
     public void onSuccessGetItems(List<Item> transactionItems) {
+
+    }
+
+    @Override
+    public void onSuccessGetNewItems(List<ItemVariants> transactionItems) {
 
     }
 

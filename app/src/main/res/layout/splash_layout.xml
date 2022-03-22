@@ -3,21 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/very_light_pink">
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/d100"
-        android:layout_above="@+id/img_splash_1"
-        android:src="@drawable/pd_logo" />
+    android:background="@color/white">
 
     <ImageView
         android:id="@+id/img_splash_1"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/d100"
+        android:layout_above="@+id/img_splash_2"
+        android:src="@drawable/mireta_logo_stacked" />
+
+    <ImageView
+        android:id="@+id/img_splash_2"
         android:layout_width="@dimen/d225"
         android:layout_height="@dimen/d200"
         android:layout_centerInParent="true"
         android:visibility="invisible"
-        android:src="@drawable/logo" />
+        android:src="@drawable/mireta_pos" />
 
     <com.boardinglabs.mireta.standalone.component.fontview.RobotoBoldTextView
         android:id="@+id/title"
@@ -35,7 +36,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/poweredBy"
         android:gravity="center"
-        android:layout_below="@id/img_splash_1"
+        android:layout_below="@id/img_splash_2"
         android:textColor="@color/mireta_blue"
         android:text="Powered By"
         android:textStyle="bold"/>
@@ -46,6 +47,6 @@
         android:layout_height="@dimen/d40"
         android:layout_below="@+id/poweredBy"
         android:layout_gravity="center"
-        android:src="@drawable/logo" />
+        android:src="@drawable/mireta_pos" />
 
 </RelativeLayout>

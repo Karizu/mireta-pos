@@ -9,15 +9,18 @@ import com.boardinglabs.mireta.standalone.component.util.MethodUtil;
 import com.boardinglabs.mireta.standalone.component.util.PreferenceManager;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.CipherSuite;
 import okhttp3.ConnectionSpec;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.TlsVersion;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okio.Buffer;
 import retrofit2.Retrofit;
@@ -44,6 +47,7 @@ public class NetworkManager {
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.connectTimeout(CONNECT_TIME_OUT, TimeUnit.MILLISECONDS);
+        httpClient.connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS));
         httpClient.readTimeout(READ_TIME_OUT, TimeUnit.MILLISECONDS);
         httpClient.addNetworkInterceptor(interceptor);
 
@@ -128,13 +132,13 @@ public class NetworkManager {
                 Request original = chain.request();
 
                 Request request = original.newBuilder()
-                        .header("Accept", "application/pasy.v1+json")
-                        .header("content-type", "application/x-www-form-urlencoded")
-                        .header("App-ID", "mobile")
+//                        .header("Accept", "application/pasy.v1+json")
+//                        .header("content-type", "application/x-www-form-urlencoded")
+//                        .header("App-ID", "mobile")
                         .header("AccessToken", sessionToken)
-                        .header("cache-control", "no-cache")
-                        .header("Time", unixTime)
-                        .header("Hmac", HMac)
+//                        .header("cache-control", "no-cache")
+//                        .header("Time", unixTime)
+//                        .header("Hmac", HMac)
                         .build();
 
                 Response response = chain.proceed(request);
@@ -143,7 +147,15 @@ public class NetworkManager {
             }
         });
 
-        ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.CLEARTEXT)
+//        ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.CLEARTEXT)
+//                .build();
+
+        ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                .tlsVersions(TlsVersion.TLS_1_2)
+                .cipherSuites(
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                        CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                        CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
                 .build();
 
         httpClient.connectionSpecs(Collections.singletonList(spec));

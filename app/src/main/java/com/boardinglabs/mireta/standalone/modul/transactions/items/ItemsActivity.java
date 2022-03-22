@@ -32,15 +32,17 @@ import com.boardinglabs.mireta.standalone.component.listener.ItemActionListener;
 import com.boardinglabs.mireta.standalone.component.listener.ListActionListener;
 import com.boardinglabs.mireta.standalone.component.network.NetworkManager;
 import com.boardinglabs.mireta.standalone.component.network.NetworkService;
+import com.boardinglabs.mireta.standalone.component.network.entities.ChildItem.ItemsResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.Item;
+import com.boardinglabs.mireta.standalone.component.network.entities.ItemVariants.ItemVariants;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionPost;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionToCashier;
 import com.boardinglabs.mireta.standalone.component.util.MethodUtil;
 import com.boardinglabs.mireta.standalone.modul.CommonInterface;
 import com.boardinglabs.mireta.standalone.modul.home.HomeActivity;
 import com.boardinglabs.mireta.standalone.modul.transactions.items.pembayaran.PembayaranActivity;
-import com.boardinglabs.mireta.standalone.modul.transactions.items.pembayaran.pembayaranardi.PembayaranArdiActivity;
 import com.google.gson.Gson;
+import com.paging.gridview.PagingGridView;
 import com.paging.listview.PagingListView;
 
 import java.text.SimpleDateFormat;
@@ -54,23 +56,22 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import okhttp3.ResponseBody;
 
-
 public class ItemsActivity extends BaseActivity implements ItemsView, CommonInterface, ItemActionListener, ListActionListener {
     private ItemsPresenter mPresenter;
-
 
     protected RecyclerView reportRecyclerView;
 
     private List<Item> items;
     private List<Item> orederditems;
     private List<Item> itemList;
-    private PagingListView itemsListView;
+    private List<ItemsResponse> itemsResponseList;
     private PagingListView overviewListView;
     private RecyItemsAdapter itemsAdapter;
     private RecyOverviewItemsAdapter overviewItemsAdapter;
     private SwipeRefreshLayout pullToRefresh;
     private int currentPage;
     private int total_post;
+    private int transactionType, spesificMethod;
 
     private LinearLayout collapsed_view;
     private LinearLayout expanded_view;
@@ -88,7 +89,7 @@ public class ItemsActivity extends BaseActivity implements ItemsView, CommonInte
     private Context context;
 
     private boolean expanded = false;
-
+    private boolean isGridView = false;
 
     @BindView(R.id.laySearch)
     LinearLayout laySearch;
@@ -100,6 +101,35 @@ public class ItemsActivity extends BaseActivity implements ItemsView, CommonInte
     RobotoRegularTextView item_name;
     @BindView(R.id.imgSearch)
     ImageView imgSearch;
+    @BindView(R.id.btn_grid_list)
+    ImageView btn_grid_list;
+    @BindView(R.id.item_list)
+    PagingListView itemsListView;
+    @BindView(R.id.item_grid)
+    PagingGridView itemsGridView;
+
+    @OnClick(R.id.btn_grid_list)
+    void onClickGridList(){
+        if (!isGridView){
+            isGridView = true;
+            itemsGridView.setVisibility(View.VISIBLE);
+            itemsListView.setVisibility(View.GONE);
+            itemsAdapter = new RecyItemsAdapter(true);
+            itemsAdapter.setListener(this);
+            itemsGridView.setAdapter(itemsAdapter);
+            btn_grid_list.setImageDrawable(getResources().getDrawable(R.drawable.ic_list));
+        } else {
+            isGridView = false;
+            itemsListView.setVisibility(View.VISIBLE);
+            itemsGridView.setVisibility(View.GONE);
+            itemsAdapter = new RecyItemsAdapter(false);
+            itemsAdapter.setListener(this);
+            itemsListView.setAdapter(itemsAdapter);
+            btn_grid_list.setImageDrawable(getResources().getDrawable(R.drawable.ic_grid));
+        }
+
+        loadTransactionsData();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -137,24 +167,48 @@ public class ItemsActivity extends BaseActivity implements ItemsView, CommonInte
     }
 
     private void initComponent() {
+        btn_grid_list.setVisibility(View.VISIBLE);
         pullToRefresh = findViewById(R.id.pullToRefresh);
         pullToRefresh.setOnRefreshListener(() -> {
             loadTransactionsData();
             pullToRefresh.setRefreshing(false);
         });
 
+        if (getIntent()!=null){
+            transactionType = getIntent().getIntExtra("transaction_type", 0);
+            spesificMethod = getIntent().getIntExtra("spesific_method", 0);
+        }
+
         orederditems = new ArrayList<>();
         itemList = new ArrayList<>();
+        itemsResponseList = new ArrayList<>();
 
         total_post = 0;
         currentPage = 0;
 
-        itemsAdapter = new RecyItemsAdapter();
+        itemsAdapter = new RecyItemsAdapter(false);
         itemsAdapter.setListener(this);
 
-        itemsListView = findViewById(R.id.item_list);
-        itemsListView.setAdapter(itemsAdapter);
+        itemsGridView.setAdapter(itemsAdapter);
+        itemsGridView.setPagingableListener(() -> {
+            itemsGridView.onFinishLoading(false, null);
+        });
 
+        itemsGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (itemsGridView.getChildAt(0) != null) {
+                    pullToRefresh.setEnabled(itemsGridView.getFirstVisiblePosition() == 0 && itemsGridView.getChildAt(0).getTop() == 0);
+                }
+            }
+        });
+
+        itemsListView.setAdapter(itemsAdapter);
         itemsListView.setPagingableListener(new PagingListView.Pagingable() {
             @Override
             public void onLoadMoreItems() {
@@ -323,6 +377,8 @@ public class ItemsActivity extends BaseActivity implements ItemsView, CommonInte
                 Log.d("mTotal", String.valueOf(mTotalPrice));
                 Log.d("listOrder", listOrder);
                 String mTotalPrices = String.valueOf(mTotalPrice);
+                intent.putExtra("transaction_type", transactionType);
+                intent.putExtra("spesific_method", spesificMethod);
                 intent.putExtra("total", mTotalPrices);
                 intent.putExtra("json", listOrder);
                 startActivity(intent);
@@ -431,6 +487,45 @@ public class ItemsActivity extends BaseActivity implements ItemsView, CommonInte
 
         itemsAdapter.setDataList(items, context);
         itemsListView.setHasMoreItems(false);
+        itemsGridView.setHasMoreItems(false);
+    }
+
+    @Override
+    public void onSuccessGetNewItems(List<ItemVariants> items) {
+//        itemsResponseList.addAll(items);
+//
+//        item_name.setVisibility(View.GONE);
+//        imgSearch.setVisibility(View.GONE);
+//        laySearch.setVisibility(View.VISIBLE);
+//        etSearch.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                List<ItemsResponse> newWorker = new ArrayList<>();
+//                String newTextLowerCase = etSearch.getText().toString().toLowerCase();
+//                for (ItemsResponse response : items) {
+//                    if (response.getName().toLowerCase().contains(newTextLowerCase)) {
+//                        newWorker.add(response);
+//                    }
+//                }
+//                if (newWorker.size() >= 1){
+////                    itemsAdapter.setDataList(newWorker, context);
+//                }
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//
+//            }
+//        });
+//
+////        itemsAdapter.setDataList(items, context);
+//        itemsListView.setHasMoreItems(false);
+//        itemsGridView.setHasMoreItems(false);
     }
 
     @Override
@@ -460,6 +555,7 @@ public class ItemsActivity extends BaseActivity implements ItemsView, CommonInte
             overviewItemsAdapter.notifyDataSetChanged();
         }
         updateTotalBottom();
+
     }
 
     @Override

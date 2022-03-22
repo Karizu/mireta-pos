@@ -95,7 +95,7 @@ public class KatalogAdapter extends RecyclerView.Adapter<KatalogAdapter.ViewHold
 
     @SuppressLint({"SetTextI18n", "ResourceAsColor"})
     @Override
-    public void onBindViewHolder(@NonNull KatalogAdapter.ViewHolder holder, int position){
+    public void onBindViewHolder(@NonNull KatalogAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position){
         final KatalogModel transactionModel = transactionModels.get(position);
         final String id = transactionModel.getId();
         final String name = transactionModel.getName();

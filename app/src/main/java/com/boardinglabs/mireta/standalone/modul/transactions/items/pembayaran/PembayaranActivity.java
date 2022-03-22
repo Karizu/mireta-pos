@@ -37,7 +37,11 @@ import com.boardinglabs.mireta.standalone.component.network.NetworkManager;
 import com.boardinglabs.mireta.standalone.component.network.NetworkService;
 import com.boardinglabs.mireta.standalone.component.network.entities.Ardi.Members;
 import com.boardinglabs.mireta.standalone.component.network.entities.Ardi.Trx.TransactionArdi;
+import com.boardinglabs.mireta.standalone.component.network.entities.ChildItem.ItemsResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.Expenditure.ExpenditureResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.Item;
+import com.boardinglabs.mireta.standalone.component.network.entities.ItemVariants.ItemVariants;
+import com.boardinglabs.mireta.standalone.component.network.entities.PaymentMethodResponse;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionPost;
 import com.boardinglabs.mireta.standalone.component.network.entities.TransactionToCashier;
 import com.boardinglabs.mireta.standalone.component.network.entities.Trx.TransactionResponse;
@@ -85,6 +89,7 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
     private TransactionPost transactionPost;
     private int CASH_METHOD = 1;
     private int QRIS_METHOD = 2;
+    private int TRANSFER_METHOD = 3;
     private int PAYMENT_METHOD = CASH_METHOD;
     private int PENDING = 1;
     private int SUCCESS = 2;
@@ -99,6 +104,7 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
     private int flag, saldo;
     private long nomBayar;
     private Context context;
+    private int transactionType, spesificMethod;
 
     @BindView(R.id.tvAmount)
     RobotoLightTextView tvAmount;
@@ -117,6 +123,7 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
     @BindView(R.id.btnBayar)
     Button btnBayar;
     private long kembalian;
+    private int jumlahLain = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -138,6 +145,8 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
 
         Intent intent = getIntent();
         String json = intent.getStringExtra("json");
+        transactionType = intent.getIntExtra("transaction_type", 0);
+        spesificMethod = intent.getIntExtra("spesific_method", 0);
         mTotal = Long.parseLong(intent.getStringExtra("total"));
         tvTotalAmount.setText("Rp " + MethodUtil.toCurrencyFormat(Long.toString(mTotal)));
 
@@ -151,11 +160,13 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
         orederditems = new ArrayList<Items>();
         mItems = new ArrayList<Items>();
 
-//        if (loginBusiness.name.equals("tokokini")) {
-//            settingDialog();
-//        }
-
-        settingDialog();
+        if (spesificMethod > 0){
+            STATUS = SUCCESS;
+            btnBayar.setEnabled(true);
+            PAYMENT_METHOD = spesificMethod;
+        } else {
+            settingDialog();
+        }
 
         JSONArray jsonArray = null;
         try {
@@ -180,57 +191,7 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
         LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayout.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-
-//        settingMethodSpinner();
-
-//        etNominalBayar.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                try {
-//                    long total = mTotal;
-//                    total = (Integer.valueOf(s.toString()) - total);
-//                    if (total >= 0) {
-//                        tvKembalian.setText("Kembalian : Rp "+MethodUtil.toCurrencyFormat(Long.toString(total)) + "");
-//                    } else {
-//                        tvKembalian.setText("Kembalian : Rp "+MethodUtil.toCurrencyFormat("0") + "");
-//                    }
-//                } catch (Exception e) {
-//                    tvKembalian.setText(" ");
-//                }
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//
-//            }
-//        });
-
-//        spinnerPay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                if (spinnerPay.getItemAtPosition(position).toString().equals("Tunai")){
-//                    etNominalBayar.setVisibility(View.VISIBLE);
-//                } else {
-//                    etNominalBayar.setVisibility(View.GONE);
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-
-//        tvAmount.setVisibility(View.VISIBLE);
-//        tvAmount.setText("Rp "+MethodUtil.toCurrencyFormat(Long.toString(mTotal)));
-
         updateTotalBottom();
-
     }
 
     @Override
@@ -379,7 +340,16 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
                     tvKembalian.setText(" ");
                 }
             } else {
-                if (PAYMENT_METHOD == QRIS_METHOD) {
+
+                if (jumlahLain >= 0) {
+                    dialog.dismiss();
+                    long total = mTotal;
+                    total = (jumlahLain - total);
+                    tvKembalian.setText("Kembalian : Rp "+MethodUtil.toCurrencyFormat(Long.toString(total)) + "");
+                    return;
+                }
+
+                if (PAYMENT_METHOD != CASH_METHOD) {
                     dialog.dismiss();
                     btnBayar.setEnabled(true);
                     tvKembalian.setText("");
@@ -390,41 +360,7 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
             }
         });
 
-        // Spinner Drop down elements
-        List<String> method = new ArrayList<String>();
-        method.add("Tunai");
-        method.add("QRIS");
-
-        // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, R.layout.layout_spinner_text, method);
-
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(R.layout.layout_spinner_dropdown);
-
-        // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (spinner.getItemAtPosition(position).toString().equals("Tunai")){
-                    PAYMENT_METHOD = CASH_METHOD;
-                    STATUS = SUCCESS;
-                    layout.setVisibility(View.VISIBLE);
-                } else {
-                    PAYMENT_METHOD = QRIS_METHOD;
-                    STATUS = PENDING;
-                    layout.setVisibility(View.GONE);
-                    nomBayar = mTotal;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
+        getPaymentMethod(spinner, layout);
         etNominal.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -436,13 +372,13 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 try {
                     long total = mTotal;
-                    total = (Integer.valueOf(s.toString()) - total);
+                    total = (Integer.parseInt(etNominal.getText().toString()) - total);
                     if (total >= 0) {
+                        jumlahLain = Integer.parseInt(etNominal.getText().toString());
                         btnBayar.setEnabled(true);
                         tvKembalian.setText("Kembalian : Rp "+MethodUtil.toCurrencyFormat(Long.toString(total)) + "");
                     } else {
                         btnBayar.setEnabled(false);
-                        Toast.makeText(context, "Masukan nominal yang dibayarkan", Toast.LENGTH_LONG).show();
                         tvKembalian.setText("Kembalian : Rp "+MethodUtil.toCurrencyFormat("0") + "");
                     }
                 } catch (Exception e) {
@@ -452,6 +388,67 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
 
             @Override
             public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
+    private void getPaymentMethod(Spinner spinner, LinearLayout layout){
+        Loading.show(context);
+        ApiLocal.apiInterface().getPaymentMethods("asc", "id", loginStockLocation.location_id, PreferenceManager.getOperationData().getId() + "", "Bearer " + PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<List<PaymentMethodResponse>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<PaymentMethodResponse>>> call, Response<ApiResponse<List<PaymentMethodResponse>>> response) {
+                Loading.hide(context);
+                try {
+                    if (response.isSuccessful()){
+                        // Spinner Drop down elements
+                        List<String> method = new ArrayList<String>();
+                        List<Integer> idList = new ArrayList<>();
+                        List<PaymentMethodResponse> methodResponse = Objects.requireNonNull(response.body()).getData();
+                        for (PaymentMethodResponse data: methodResponse){
+                            method.add(data.getName());
+                            idList.add(data.getId());
+                        }
+
+                        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(PembayaranActivity.this, R.layout.layout_spinner_text, method);
+                        dataAdapter.setDropDownViewResource(R.layout.layout_spinner_dropdown);
+                        spinner.setAdapter(dataAdapter);
+
+                        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                String itemMethod = spinner.getItemAtPosition(position).toString();
+                                if (itemMethod.equals("Tunai")){
+                                    PAYMENT_METHOD = idList.get(position);
+                                    STATUS = SUCCESS;
+                                    layout.setVisibility(View.VISIBLE);
+                                } else if (itemMethod.equals("QRIS") || itemMethod.contains("Transfer")){
+                                    PAYMENT_METHOD = idList.get(position);
+                                    STATUS = PENDING;
+                                    layout.setVisibility(View.GONE);
+                                    nomBayar = mTotal;
+                                } else {
+                                    PAYMENT_METHOD = idList.get(position);
+                                    STATUS = SUCCESS;
+                                    layout.setVisibility(View.VISIBLE);
+                                }
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
+                    } else {
+                        Toast.makeText(context, "Terjadi kesalahan pada server", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<PaymentMethodResponse>>> call, Throwable t) {
 
             }
         });
@@ -474,16 +471,6 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
             totalPrice += total_price;
         }
 
-//        for (Items orditem:orederditems) {
-//            String uniqueId = UUID.randomUUID().toString();
-//            Log.d("Tag ID", orditem.getId());
-//            transactionItems.add(new TransactionPost.Items(orditem.getId(), orditem.getOrder_qty(), 0));
-//            itemsList.add(new TransactionToCashier.Items(uniqueId, orditem.getName(), orditem.getOrder_qty(), orditem.getPrice(), "0"));
-//            totalQty += orditem.getOrder_qty();
-//            long total_price = (long) (Integer.valueOf(orditem.getPrice()) * orditem.getOrder_qty());
-//            totalPrice += total_price;
-//        }
-
         @SuppressLint("SimpleDateFormat") SimpleDateFormat s = new SimpleDateFormat("yyMMddHHmmss");
         String format = s.format(new Date());
 
@@ -492,17 +479,17 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
         final int random = new Random().nextInt((max - min) + 1) + min;
 
         Log.d("NUM RANDOM", random + "");
-
-//        format = "M" + loginBusiness.name.substring(0, 1).toUpperCase() + format + random;
         format = "M" + format + random;
 
         totalPrice = mTotal;
 
-        transactionPost = new TransactionPost(loginStockLocation.location_id, format, totalQty, totalPrice+"", 1, PAYMENT_METHOD, STATUS, details,  "","");
+        String location_operation_id = PreferenceManager.getOperationData().getId() + "";
+        Log.d("LocationId", location_operation_id);
+
+        transactionPost = new TransactionPost(loginStockLocation.location_id, format, totalQty, totalPrice+"", 1, PAYMENT_METHOD, STATUS, details,  "","", location_operation_id, transactionType+"");
 
         Gson gson = new Gson();
         String json = gson.toJson(transactionPost);
-        System.out.println(json);
     }
 
     private void onClickBayar(String member_id, long mSisaSaldo) {
@@ -723,6 +710,11 @@ public class PembayaranActivity extends BaseActivity implements ItemsView, Commo
 
     @Override
     public void onSuccessGetItems(List<Item> transactionItems) {
+
+    }
+
+    @Override
+    public void onSuccessGetNewItems(List<ItemVariants> transactionItems) {
 
     }
 

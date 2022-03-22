@@ -41,6 +41,7 @@ android {
         versionName "2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -280,6 +281,7 @@ dependencies {
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
     implementation 'com.github.nicolasjafelle:paginglistview:1.2'
+    implementation 'com.github.nicolasjafelle:paginggridview:1.0'
     implementation 'com.github.maayyaannkk:ImagePicker:1.0.1'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     implementation 'com.ogaclejapan.smarttablayout:library:1.6.1@aar'
@@ -309,6 +311,11 @@ dependencies {
     implementation group: 'com.google.zxing', name: 'core', version: '3.3.0'
     // barcode ZXing
     implementation 'me.dm7.barcodescanner:zxing:1.9.8'
+    implementation 'com.github.k0shk0sh:RetainedDateTimePickers:1.0.2'
+    implementation 'com.github.VenkatramanRajagopalan:DateRangePicker:2.1'
+    implementation 'com.leavjenn.smoothdaterangepicker:library:0.2.0'
+
+//implementation 'com.google.android.material:material:1.4.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

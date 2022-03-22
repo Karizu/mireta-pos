@@ -89,7 +89,7 @@
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:textColor="@color/gray.primary_dark"
-                        android:text="Cumi Garang"
+                        android:text="-"
                         android:textSize="@dimen/s14"
                         android:layout_weight="2"
                         />
@@ -101,7 +101,7 @@
                         android:textStyle="normal"
                         android:textColor="@color/gray.primary_dark"
                         android:textSize="11sp"
-                        android:text="22/01/2019"
+                        android:text="-"
                         />
 
                 </LinearLayout>
@@ -114,7 +114,7 @@
                     android:textSize="12sp"
                     android:layout_below="@+id/layName"
                     android:textColor="@color/gray.primary_dark"
-                    android:text="Deskripsi Deskripsi Deskripsi Deskripsi Deskripsi "
+                    android:text="-"
                     tools:ignore="HardcodedText" />
 
                 <LinearLayout
@@ -144,8 +144,7 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="0.7"
-                        android:text="Stok"
-                        android:gravity="bottom"
+                        android:text=""
                         android:textStyle="bold"
                         android:textSize="@dimen/s13"
                         android:textColor="@color/Black"
@@ -160,25 +159,30 @@
 
                         <TextView
                             android:id="@+id/qty_input"
-                            android:layout_width="@dimen/d45"
-                            android:layout_height="@dimen/d25"
+                            android:layout_width="@dimen/d65"
+                            android:layout_height="@dimen/d40"
                             android:layout_marginEnd="@dimen/d8"
                             android:background="@drawable/border_round_white"
                             android:text="-"
+                            android:gravity="center"
                             android:paddingTop="@dimen/d2"
                             android:textAllCaps="false"
                             android:textAlignment="center"
                             android:textSize="@dimen/s12"
+                            android:textStyle="bold"
+                            android:textColor="@color/Black"
                             tools:ignore="HardcodedText" />
 
                         <ImageButton
-                            android:layout_width="@dimen/d25"
-                            android:layout_height="@dimen/d25"
+                            android:visibility="visible"
+                            android:layout_width="@dimen/d40"
+                            android:layout_height="@dimen/d40"
                             android:background="@drawable/border_round_gradient"
                             android:src="@drawable/fab_add"
                             android:id="@+id/add_button"/>
 
                         <ImageButton
+                            android:visibility="gone"
                             android:layout_marginStart="@dimen/d4"
                             android:layout_width="@dimen/d25"
                             android:layout_height="@dimen/d25"

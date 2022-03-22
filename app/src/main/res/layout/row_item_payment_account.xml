@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:visibility="visible"
+            android:id="@+id/img_qris"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/d200"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="@dimen/d20"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/qris_selada"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:gravity="start"
+            android:textColor="@color/Black"
+            android:layout_marginTop="16dp"
+            android:textSize="13sp"
+            android:text="Nama Rekening"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvAccountName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/d20"
+            android:textStyle="bold"
+            android:gravity="end"
+            android:textColor="@color/Black"
+            android:textSize="16sp"
+            android:text="Pempek Duo Terusan Jakarta"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/d20"
+            android:layout_marginTop="@dimen/d10"
+            android:gravity="start"
+            android:textColor="@color/Black"
+            android:textSize="13sp"
+            android:text="Nomor Rekening"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvAccountNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/d20"
+            android:textStyle="bold"
+            android:gravity="end"
+            android:textColor="@color/Black"
+            android:textSize="16sp"
+            android:text="08112225559"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/d20"
+            android:layout_marginTop="@dimen/d10"
+            android:gravity="start"
+            android:textColor="@color/Black"
+            android:textSize="13sp"
+            android:text="Nama Bank"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvBankName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/d20"
+            android:textStyle="bold"
+            android:gravity="end"
+            android:textColor="@color/Black"
+            android:textSize="16sp"
+            android:text="Gopay QRIS"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

@@ -8,12 +8,13 @@ public class TransactionModel {
     private String order_no;
     private String order_date;
     private String payment_type;
-    private String payment_method;
+    private Integer payment_method;
+    private PaymentMethodResponse paymentMethodResponse;
     private String amount;
     private String discount;
     private String status;
 
-    public TransactionModel(String id, String business_id, String tenant_id, String order_no, String order_date, String payment_type, String payment_method, String amount, String discount, String status) {
+    public TransactionModel(String id, String business_id, String tenant_id, String order_no, String order_date, String payment_type, Integer payment_method, PaymentMethodResponse paymentMethodResponse, String amount, String discount, String status) {
         this.id = id;
         this.business_id = business_id;
         this.tenant_id = tenant_id;
@@ -21,6 +22,7 @@ public class TransactionModel {
         this.order_date = order_date;
         this.payment_type = payment_type;
         this.payment_method = payment_method;
+        this.paymentMethodResponse = paymentMethodResponse;
         this.amount = amount;
         this.discount = discount;
         this.status = status;
@@ -74,11 +76,11 @@ public class TransactionModel {
         this.payment_type = payment_type;
     }
 
-    public String getPayment_method() {
+    public Integer getPayment_method() {
         return payment_method;
     }
 
-    public void setPayment_method(String payment_method) {
+    public void setPayment_method(Integer payment_method) {
         this.payment_method = payment_method;
     }
 
@@ -104,5 +106,13 @@ public class TransactionModel {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public PaymentMethodResponse getPaymentMethodResponse() {
+        return paymentMethodResponse;
+    }
+
+    public void setPaymentMethodResponse(PaymentMethodResponse paymentMethodResponse) {
+        this.paymentMethodResponse = paymentMethodResponse;
     }
 }

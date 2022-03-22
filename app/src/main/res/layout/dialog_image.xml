@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/Black">
+
+    <ImageView
+        android:id="@+id/btnClose"
+        android:layout_alignParentEnd="true"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="@dimen/d10"
+        android:layout_marginEnd="@dimen/d10"
+        android:src="@drawable/ic_close_white_24dp"/>
+
+    <ImageView
+        android:id="@+id/imgExpenditure"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="@dimen/d200"
+        android:layout_marginBottom="@dimen/d200"
+        android:layout_centerInParent="true"
+        android:src="@drawable/pd_logo_black_white"
+        android:contentDescription="@string/todo" />
+
+</RelativeLayout>

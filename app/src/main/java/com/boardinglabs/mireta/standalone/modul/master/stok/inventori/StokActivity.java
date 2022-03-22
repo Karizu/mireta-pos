@@ -28,10 +28,12 @@ import com.boardinglabs.mireta.standalone.BaseActivity;
 import com.boardinglabs.mireta.standalone.R;
 import com.boardinglabs.mireta.standalone.component.network.ApiLocal;
 import com.boardinglabs.mireta.standalone.component.network.entities.Items.ItemResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.Stocks.StockResponse;
 import com.boardinglabs.mireta.standalone.component.network.response.ApiResponse;
 import com.boardinglabs.mireta.standalone.component.util.PreferenceManager;
 import com.boardinglabs.mireta.standalone.modul.master.stok.inventori.adapter.StokAdapter;
 import com.boardinglabs.mireta.standalone.modul.master.stok.inventori.model.KatalogModel;
+import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -85,7 +87,7 @@ public class StokActivity extends BaseActivity {
     @Override
     protected void setContentViewOnChild() {
         ButterKnife.bind(this);
-        setToolbarTitle("RESTOCK");
+        setToolbarTitle("STOCK");
 
         context = this;
 
@@ -94,12 +96,12 @@ public class StokActivity extends BaseActivity {
 
         katalogModels = new ArrayList<>();
         itemImages = new ArrayList<>();
-        setListKatalog();
+        getStok();
 
         swipeRefresh.setOnRefreshListener(() -> {
             katalogModels.clear();
             adapter.notifyDataSetChanged();
-            setListKatalog();
+            getStok();
         });
 
         btnTambah.setOnClickListener(v -> {
@@ -224,6 +226,57 @@ public class StokActivity extends BaseActivity {
             @Override
             public void afterTextChanged(Editable s) {
 
+            }
+        });
+    }
+
+    private void getStok() {
+        swipeRefresh.setRefreshing(true);
+        ApiLocal.apiInterface().getItemsList(loginStockLocation.location_id, "Bearer "+ PreferenceManager.getSessionToken()).enqueue(new Callback<ApiResponse<List<StockResponse>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<StockResponse>>> call, Response<ApiResponse<List<StockResponse>>> response) {
+                swipeRefresh.setRefreshing(false);
+                try {
+                    List<StockResponse> res = response.body().getData();
+                    Log.d("stocks", new Gson().toJson(res));
+                    if (res.size() < 1){
+                        tvNoData.setVisibility(View.VISIBLE);
+                    } else {
+                        tvNoData.setVisibility(View.GONE);
+                    }
+
+                    for (int i = 0; i < res.size(); i++){
+
+                        StockResponse katalog = res.get(i);
+
+                        katalogModels.add(new KatalogModel(katalog.getId()+"",
+                                katalog.getItem().getImage(),
+                                katalog.getItem().getName(),
+                                katalog.getItem().getDescription(),
+                                katalog.getItem().getPrice(),
+                                katalog.getQty(),
+                                "false",
+                                "",
+                                katalog.getCreatedAt(),
+                                katalog.getSku()));
+                    }
+
+                    adapter = new StokAdapter(katalogModels, context, itemImages, loginStockLocation.location_id, swipeRefresh);
+                    LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayout.VERTICAL, false);
+                    DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                            layoutManager.getOrientation());
+                    recyclerView.addItemDecoration(dividerItemDecoration);
+                    recyclerView.setLayoutManager(layoutManager);
+                    recyclerView.setAdapter(adapter);
+
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<StockResponse>>> call, Throwable t) {
+                swipeRefresh.setRefreshing(false);
             }
         });
     }

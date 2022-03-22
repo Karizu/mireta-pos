@@ -316,7 +316,7 @@ public class TambahBarangActivity extends BaseActivity {
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             photoImage = (Bitmap) data.getExtras().get("data");
-            photoImage.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            photoImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
             imgBarang.setImageBitmap(photoImage);
             try {
                 File outputDir = getCacheDir();
@@ -417,7 +417,6 @@ public class TambahBarangActivity extends BaseActivity {
         });
     }
 
-
     private void setSpinnerNestedKatgori(int position) {
         Loading.show(context);
 
@@ -511,13 +510,13 @@ public class TambahBarangActivity extends BaseActivity {
 
             if (photoImage != null) {
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                photoImage.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
+                photoImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
                 if (subKategoriesId != null) {
                     requestBody = new MultipartBody.Builder()
                             .setType(MultipartBody.FORM)
                             .addFormDataPart("code", etKodeBarang.getText().toString())
-                            .addFormDataPart("brand_id", loginStockLocation.brand_id)
-                            .addFormDataPart("business_id", loginBusiness.id)
+                            .addFormDataPart("brand_id", loginStockLocation.location.getBrand().getId()+"")
+                            .addFormDataPart("business_id", loginStockLocation.location.getBusiness().id)
                             .addFormDataPart("category_id", subKategoriesId)
                             .addFormDataPart("name", etNamaBarang.getText().toString())
                             .addFormDataPart("description", etDeskripsi.getText().toString())
@@ -529,8 +528,8 @@ public class TambahBarangActivity extends BaseActivity {
                     requestBody = new MultipartBody.Builder()
                             .setType(MultipartBody.FORM)
                             .addFormDataPart("code", etKodeBarang.getText().toString())
-                            .addFormDataPart("brand_id", loginStockLocation.brand_id)
-                            .addFormDataPart("business_id", loginBusiness.id)
+                            .addFormDataPart("brand_id", loginStockLocation.location.getBrand().getId()+"")
+                            .addFormDataPart("business_id", loginStockLocation.location.getBusiness().id)
                             .addFormDataPart("category_id", kategoriesId)
                             .addFormDataPart("name", etNamaBarang.getText().toString())
                             .addFormDataPart("description", etDeskripsi.getText().toString())
@@ -545,8 +544,8 @@ public class TambahBarangActivity extends BaseActivity {
                     requestBody = new MultipartBody.Builder()
                             .setType(MultipartBody.FORM)
                             .addFormDataPart("code", etKodeBarang.getText().toString())
-                            .addFormDataPart("brand_id", loginStockLocation.brand_id)
-                            .addFormDataPart("business_id", loginBusiness.id)
+                            .addFormDataPart("brand_id", loginStockLocation.location.getBrand().getId()+"")
+                            .addFormDataPart("business_id", loginStockLocation.location.getBusiness().id)
                             .addFormDataPart("category_id", subKategoriesId)
                             .addFormDataPart("name", etNamaBarang.getText().toString())
                             .addFormDataPart("description", etDeskripsi.getText().toString())
@@ -558,8 +557,8 @@ public class TambahBarangActivity extends BaseActivity {
                     requestBody = new MultipartBody.Builder()
                             .setType(MultipartBody.FORM)
                             .addFormDataPart("code", etKodeBarang.getText().toString())
-                            .addFormDataPart("brand_id", loginStockLocation.brand_id)
-                            .addFormDataPart("business_id", loginBusiness.id)
+                            .addFormDataPart("brand_id", loginStockLocation.location.getBrand().getId()+"")
+                            .addFormDataPart("business_id", loginStockLocation.location.getBusiness().id)
                             .addFormDataPart("category_id", kategoriesId)
                             .addFormDataPart("name", etNamaBarang.getText().toString())
                             .addFormDataPart("description", etDeskripsi.getText().toString())
@@ -573,8 +572,8 @@ public class TambahBarangActivity extends BaseActivity {
                     requestBody = new MultipartBody.Builder()
                             .setType(MultipartBody.FORM)
                             .addFormDataPart("code", etKodeBarang.getText().toString())
-                            .addFormDataPart("brand_id", loginStockLocation.brand_id)
-                            .addFormDataPart("business_id", loginBusiness.id)
+                            .addFormDataPart("brand_id", loginStockLocation.location.getBrand().getId()+"")
+                            .addFormDataPart("business_id", loginStockLocation.location.getBusiness().id)
                             .addFormDataPart("category_id", subKategoriesId)
                             .addFormDataPart("name", etNamaBarang.getText().toString())
                             .addFormDataPart("description", etDeskripsi.getText().toString())
@@ -585,8 +584,8 @@ public class TambahBarangActivity extends BaseActivity {
                     requestBody = new MultipartBody.Builder()
                             .setType(MultipartBody.FORM)
                             .addFormDataPart("code", etKodeBarang.getText().toString())
-                            .addFormDataPart("brand_id", loginStockLocation.brand_id)
-                            .addFormDataPart("business_id", loginBusiness.id)
+                            .addFormDataPart("brand_id", loginStockLocation.location.getBrand().getId()+"")
+                            .addFormDataPart("business_id", loginStockLocation.location.getBusiness().id)
                             .addFormDataPart("category_id", kategoriesId)
                             .addFormDataPart("name", etNamaBarang.getText().toString())
                             .addFormDataPart("description", etDeskripsi.getText().toString())
@@ -631,7 +630,7 @@ public class TambahBarangActivity extends BaseActivity {
         if (photoImage != null) {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             Log.d("TAG MASUK CAMERA", String.valueOf(photoImage));
-            photoImage.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
+            photoImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
 //            File file = createTempFile(selectedImage);
             requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)

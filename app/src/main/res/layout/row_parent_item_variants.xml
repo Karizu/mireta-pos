@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!--Title-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.boardinglabs.mireta.standalone.component.fontview.RobotoBoldTextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/d50"
+            android:layout_marginStart="10dp"
+            android:gravity="center_vertical"
+            android:layout_weight="1"
+            android:textColor="@color/almost_black"
+            android:maxLines="1"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:id="@+id/parent_item_title"
+            android:text="-"
+            android:layout_gravity="center_vertical"/>
+
+        <com.boardinglabs.mireta.standalone.component.fontview.RobotoBoldTextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/d50"
+            android:layout_marginEnd="10dp"
+            android:gravity="end|center_vertical"
+            android:layout_weight="1"
+            android:textColor="@color/almost_black"
+            android:maxLines="1"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:id="@+id/parent_item_qty"
+            android:text="-"
+            android:layout_gravity="center_vertical"/>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey_background"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/child_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/d16"
+        tools:itemCount="2"
+        tools:listitem="@layout/row_child_item_variants"
+        android:orientation="vertical"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
+
+
+</LinearLayout>

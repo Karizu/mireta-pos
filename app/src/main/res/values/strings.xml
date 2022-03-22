@@ -84,7 +84,7 @@
 
     <string name="toolbar_title">Contacts</string>
     <string name="action_search">Search</string>
-    <string name="search_hint">Cari…</string>
+    <string name="search_hint">Cariâ€¦</string>
 
     <string name="rate_title">Ceritakan Pengalaman Anda</string>
     <string name="rate_message">Berikan Ulasan Pada Aplikasi Kami</string>
@@ -96,10 +96,10 @@
         \n
         Ini keunggulan doomo!\n
         \n
-        <b>PPOB</b> – Semua kebutuhan ada disini\n
-        <b>PAYMENT</b> – 2019 udah jaman nya cashless\n
+        <b>PPOB</b> â€“ Semua kebutuhan ada disini\n
+        <b>PAYMENT</b> â€“ 2019 udah jaman nya cashless\n
         <b>SCAN QR</b> - Bayar lebih cepat\n
-        <b>Fitur FEEDS</b> – Update status gaya baru\n
+        <b>Fitur FEEDS</b> â€“ Update status gaya baru\n
         \n
         Masih banyak fitur lain, download dulu aja bosku!\n
     "
@@ -120,6 +120,12 @@
     <string name="closeSuc">The printing device is closed successfully.</string>
     <string name="closeFailed">The printing device closed failed.</string>
     <string name="transaksi">TRANSAKSI</string>
+    <string name="todo">TODO</string>
+
+
+    <string name="footer_print" translatable="false">Dicetak oleh Mireta\nwww.mireta.id</string>
+    <string name="desc_open_store">Dengan ini saya menyatakan bahwa tidak ada perbedaan antara data di aplikasi dengan fisik yang ada</string>
+
     <string-array name="CountryCodes">
         <item>93,AF</item>
         <item>355,AL</item>

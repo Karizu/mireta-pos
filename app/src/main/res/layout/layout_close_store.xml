@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/border_round_white"
+        android:weightSum="2"
+        android:padding="@dimen/d16">
+
+        <TextView
+            android:id="@+id/tvTitleBarang"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:text="Rekapitulasi"
+            android:textAllCaps="true"
+            android:textColor="@color/mireta_blue"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/d10"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/d16">
+
+                <ImageView
+                    android:id="@+id/imgLogo"
+                    android:layout_width="@dimen/d200"
+                    android:layout_height="@dimen/d100"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/pd_logo_black_white"/>
+
+                <TextView
+                    android:id="@+id/tvLocationName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/d10"
+                    android:text="Pempek Duo"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:textColor="@color/NormalColorText"
+                    tools:ignore="HardcodedText,RtlSymmetry" />
+
+                <TextView
+                    android:id="@+id/tvLocationAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Bandung"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:textColor="@color/NormalColorText"
+                    tools:ignore="HardcodedText,RtlSymmetry" />
+
+                <TextView
+                    android:id="@+id/tvOperator"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/d10"
+                    android:text="Operator: Azhary"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:textColor="@color/NormalColorText"
+                    tools:ignore="HardcodedText,RtlSymmetry" />
+
+                <TextView
+                    android:id="@+id/tvOpenDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:textColor="@color/NormalColorText"
+                    tools:ignore="HardcodedText,RtlSymmetry" />
+
+                <TextView
+                    android:id="@+id/tvClosedDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:textColor="@color/NormalColorText"
+                    tools:ignore="HardcodedText,RtlSymmetry" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/d20"
+                    android:background="@android:color/transparent" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Rekap Keuangan Tunai"
+                        android:textSize="15sp"
+                        android:gravity="start"
+                        android:textColor="@color/Black"
+                        tools:ignore="HardcodedText,RtlSymmetry" />
+
+                    <Button
+                        android:id="@+id/btnAdjustment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="25dp"
+                        android:text="Laporkan Perbedaan"
+                        android:textSize="11sp"
+                        android:paddingStart="@dimen/d8"
+                        android:paddingEnd="@dimen/d8"
+                        android:background="@drawable/border_round_outline"
+                        android:textAllCaps="false"
+                        android:textColor="@color/dusty_orange"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:paddingStart="@dimen/d20"
+                    android:paddingEnd="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:visibility="gone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Modal Awal"
+                            android:textColor="@color/NormalColorText"
+                            android:textSize="@dimen/s13" />
+
+                        <TextView
+                            android:id="@+id/tvKasAwal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:layout_weight="1"
+                            android:text="Rp -"
+                            android:textSize="@dimen/s13"
+                            android:textColor="@color/NormalColorText"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Pendapatan"
+                            android:textColor="@color/NormalColorText"
+                            android:textSize="@dimen/s13" />
+
+                        <TextView
+                            android:id="@+id/tvTransactionSum"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:layout_weight="1"
+                            android:text="Rp -"
+                            android:textSize="@dimen/s13"
+                            android:textColor="@color/NormalColorText"/>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/d5"
+                        android:background="@android:color/transparent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:layout_weight="1"
+                            android:text="Pengeluaran"
+                            android:textColor="@color/NormalColorText"
+                            android:textSize="@dimen/s13" />
+
+                        <TextView
+                            android:id="@+id/tvExpenditureTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:layout_weight="1"
+                            android:text="Rp -"
+                            android:textSize="@dimen/s13"
+                            android:textColor="@color/NormalColorText"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_height="1dp"
+                    android:background="@color/grey_background"/>
+
+                <EditText
+                    android:id="@+id/etDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/d40"
+                    android:background="@drawable/border_round_white"
+                    android:hint="Deskripsi"
+                    android:paddingStart="@dimen/d16"
+                    android:textAllCaps="false"
+                    android:visibility="gone"
+                    android:textSize="13sp"
+                    tools:ignore="HardcodedText" />
+
+                <!--<View-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="@dimen/d15"-->
+                <!--android:background="@android:color/transparent"/>-->
+
+                <!--<Spinner-->
+                <!--android:id="@+id/spinnerMerek"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="40dp"-->
+                <!--android:paddingStart="14dp"-->
+                <!--android:paddingBottom="5dp"-->
+                <!--android:visibility="gone"-->
+                <!--android:paddingTop="5dp"-->
+                <!--android:background="@drawable/border_round_white"-->
+                <!--tools:ignore="HardcodedText" />-->
+
+                <!--<View-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="@dimen/d15"-->
+                <!--android:background="@android:color/transparent"/>-->
+
+                <!--<Spinner-->
+                <!--android:id="@+id/spinnerKategori"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="40dp"-->
+                <!--android:paddingStart="14dp"-->
+                <!--android:paddingBottom="5dp"-->
+                <!--android:paddingTop="5dp"-->
+                <!--android:background="@drawable/border_round_white"-->
+                <!--tools:ignore="HardcodedText" />-->
+
+                <!--<View-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="@dimen/d15"-->
+                <!--android:background="@android:color/transparent"/>-->
+
+                <!--<Spinner-->
+                <!--android:id="@+id/etSubKategori"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="40dp"-->
+                <!--android:paddingStart="14dp"-->
+                <!--android:paddingBottom="5dp"-->
+                <!--android:paddingTop="5dp"-->
+                <!--android:background="@drawable/border_round_white"-->
+                <!--tools:ignore="HardcodedText" />-->
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/d10"
+                    android:background="@android:color/transparent" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/d20"
+                    android:paddingEnd="20dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Total Tunai"
+                        android:textColor="@color/Black"
+                        android:textSize="@dimen/s13" />
+
+                    <TextView
+                        android:id="@+id/tvGrandTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:layout_weight="1"
+                        android:textStyle="bold"
+                        android:text="Rp -"
+                        android:textSize="@dimen/s13"
+                        android:textColor="@color/NormalColorText"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:visibility="gone"
+                    android:id="@+id/layoutAdjustment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/d20"
+                    android:paddingEnd="20dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Perbedaan Tunai"
+                        android:textColor="@color/Black"
+                        android:textSize="@dimen/s13" />
+
+                    <TextView
+                        android:id="@+id/tvAdjustmentCash"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:layout_weight="1"
+                        android:textStyle="bold"
+                        android:text="Rp -"
+                        android:textSize="@dimen/s13"
+                        android:textColor="@color/NormalColorText"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/d20"
+                    android:background="@android:color/transparent" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Rekap Penjualan Non Tunai"
+                    android:textSize="15sp"
+                    android:gravity="start"
+                    android:textColor="@color/Black"
+                    tools:ignore="HardcodedText,RtlSymmetry" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:paddingStart="@dimen/d20"
+                    android:paddingEnd="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Penjualan QRIS"
+                            android:textColor="@color/NormalColorText"
+                            android:textSize="@dimen/s13" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryQris"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:layout_weight="1"
+                            android:text="Rp -"
+                            android:textSize="@dimen/s13"
+                            android:textColor="@color/NormalColorText"/>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/d5"
+                        android:background="@android:color/transparent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Penjualan Transfer"
+                            android:textColor="@color/NormalColorText"
+                            android:textSize="@dimen/s13" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryTransfer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:layout_weight="1"
+                            android:text="Rp -"
+                            android:textSize="@dimen/s13"
+                            android:textColor="@color/NormalColorText"/>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/d5"
+                        android:background="@android:color/transparent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Penjualan Gopay"
+                            android:textColor="@color/NormalColorText"
+                            android:textSize="@dimen/s13" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryGopay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:layout_weight="1"
+                            android:text="Rp -"
+                            android:textSize="@dimen/s13"
+                            android:textColor="@color/NormalColorText"/>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/d5"
+                        android:background="@android:color/transparent" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:layout_weight="1"
+                            android:text="Penjualan OVO"
+                            android:textColor="@color/NormalColorText"
+                            android:textSize="@dimen/s13" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryOvo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:layout_weight="1"
+                            android:text="Rp -"
+                            android:textSize="@dimen/s13"
+                            android:textColor="@color/NormalColorText"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/d20"
+                    android:background="@android:color/transparent" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Rekap Stok Barang"
+                    android:textSize="15sp"
+                    android:gravity="start"
+                    android:textColor="@color/Black"
+                    tools:ignore="HardcodedText,RtlSymmetry" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rvStockItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    android:paddingStart="@dimen/d20"
+                    android:paddingEnd="20dp"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/row_recap_stok"
+                    app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                    android:orientation="vertical"
+                    />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/d5"
+                    android:background="@android:color/transparent" />
+
+            </LinearLayout>
+
+            <Button
+                android:visibility="gone"
+                android:id="@+id/btnPrint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/d20"
+                android:layout_marginStart="@dimen/d16"
+                android:layout_marginEnd="@dimen/d16"
+                android:background="@drawable/background_button"
+                android:textColor="@color/white"
+                android:text="Print"/>
+
+            <Button
+                android:visibility="gone"
+                android:id="@+id/btnListTransaction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/d20"
+                android:layout_marginStart="@dimen/d16"
+                android:layout_marginEnd="@dimen/d16"
+                android:background="@drawable/background_button"
+                android:textColor="@color/white"
+                android:text="Lihat Transaksi Saya"/>
+
+            <Button
+                android:id="@+id/btnProses"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/d10"
+                android:layout_marginStart="@dimen/d16"
+                android:layout_marginEnd="@dimen/d16"
+                android:layout_marginBottom="@dimen/d8"
+                android:background="@drawable/background_button"
+                android:textColor="@color/white"
+                android:text="PROSES"/>
+
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>

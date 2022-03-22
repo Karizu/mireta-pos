@@ -39,6 +39,7 @@ public class LoginPresenter {
                 PreferenceManager.saveUser(loginResponse.data);
                 PreferenceManager.saveBusiness(loginResponse.data.business);
                 PreferenceManager.saveStockLocation(loginResponse.data.user_location);
+                PreferenceManager.saveRole(loginResponse.data.role);
                 mView.onSuccessRequest();
             }
         });

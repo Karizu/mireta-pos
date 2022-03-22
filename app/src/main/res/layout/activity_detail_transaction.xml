@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ScrollView
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -137,7 +137,7 @@
                                 android:layout_weight="1"
                                 android:text="Status Order : "
                                 android:textSize="13sp"
-                                android:textColor="@color/NormalColorText"
+                                android:textColor="@color/Black"
                                 tools:ignore="HardcodedText" />
 
                             <TextView
@@ -157,7 +157,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="6dp"
                             android:weightSum="2">
 
                             <TextView
@@ -167,7 +167,7 @@
                                 android:layout_weight="1"
                                 android:text="Order No : "
                                 android:textSize="13sp"
-                                android:textColor="@color/NormalColorText"
+                                android:textColor="@color/Black"
                                 tools:ignore="HardcodedText" />
 
                             <TextView
@@ -178,7 +178,7 @@
                                 android:layout_weight="1"
                                 android:text="-"
                                 android:textSize="13sp"
-                                android:textColor="@color/NormalColorText"
+                                android:textColor="@color/Black"
                                 tools:ignore="HardcodedText,RtlHardcoded" />
 
                         </LinearLayout>
@@ -187,7 +187,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="6dp"
                             android:weightSum="2">
 
                             <TextView
@@ -195,20 +195,50 @@
                                 android:layout_height="match_parent"
                                 android:gravity="center_vertical"
                                 android:layout_weight="1"
-                                android:text="Diskon : "
+                                android:text="Metode Bayar : "
                                 android:textSize="13sp"
-                                android:textColor="@color/NormalColorText"
+                                android:textColor="@color/Black"
                                 tools:ignore="HardcodedText" />
 
                             <TextView
-                                android:id="@+id/tvDiscount"
+                                android:id="@+id/tvPaymentMethodName"
                                 android:layout_width="0dp"
                                 android:layout_height="match_parent"
                                 android:gravity="right"
                                 android:layout_weight="1"
-                                android:text="Rp. 0"
+                                android:text="-"
                                 android:textSize="13sp"
-                                android:textColor="@color/NormalColorText"
+                                android:textColor="@color/Black"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="6dp"
+                            android:weightSum="2">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:layout_weight="1"
+                                android:text="Tipe Transaksi : "
+                                android:textSize="13sp"
+                                android:textColor="@color/Black"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:id="@+id/tvPaymentType"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:gravity="right"
+                                android:layout_weight="1"
+                                android:text="-"
+                                android:textSize="13sp"
+                                android:textColor="@color/Black"
                                 tools:ignore="HardcodedText,RtlHardcoded" />
 
                         </LinearLayout>
@@ -239,13 +269,51 @@
                             android:id="@+id/recyclerView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"/>
+                            android:nestedScrollingEnabled="false"
+                            android:layout_marginTop="8dp"
+                            tools:listitem="@layout/content_item_detail_transaction"
+                            tools:itemCount="2"
+                            android:orientation="vertical"
+                            app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
 
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:layout_marginTop="16dp"
                             android:background="@color/NormalGreyText"/>
+
+                        <LinearLayout
+                            android:visibility="gone"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp"
+                            android:weightSum="2">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:layout_weight="1"
+                                android:text="Sub Total : "
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/Black"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:id="@+id/tvSubTotal"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:gravity="right"
+                                android:layout_weight="1"
+                                android:text=""
+                                android:textStyle="bold"
+                                android:textSize="13sp"
+                                android:textColor="@color/Black"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+
+                        </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -259,7 +327,7 @@
                                 android:layout_height="match_parent"
                                 android:gravity="center_vertical"
                                 android:layout_weight="1"
-                                android:text="Total Harga : "
+                                android:text="TOTAL : "
                                 android:textSize="13sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/Black"
@@ -279,64 +347,126 @@
 
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:id="@+id/layoutDiscount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp"
+                            android:weightSum="2">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:layout_weight="1"
+                                android:text="Total Hemat : "
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/Black"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:id="@+id/tvDiscount"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:gravity="right"
+                                android:layout_weight="1"
+                                android:text=""
+                                android:textStyle="bold"
+                                android:textSize="13sp"
+                                android:textColor="@color/Black"
+                                tools:ignore="HardcodedText,RtlHardcoded" />
+
+                        </LinearLayout>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rvDiscountDetail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            tools:listitem="@layout/row_discount_detail"
+                            tools:itemCount="2"
+                            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                            android:orientation="vertical"/>
+
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:layout_marginTop="8dp"
                             android:background="@color/NormalGreyText"/>
 
-                        <LinearLayout
-                            android:id="@+id/layout_qris"
+                        <TextView
                             android:visibility="gone"
+                            android:id="@+id/titleMethodPayment"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical">
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:layout_marginTop="@dimen/d20"
+                            android:text="Metode Pembayaran"
+                            android:textSize="16sp"
+                            android:textColor="@color/Black"
+                            tools:ignore="HardcodedText" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:textColor="@color/Black"
-                                android:textStyle="bold"
-                                android:layout_marginTop="16dp"
-                                android:textSize="16sp"
-                                android:text="QRIS"
-                                tools:ignore="HardcodedText" />
+                        <TextView
+                            android:visibility="gone"
+                            android:id="@+id/tvPaymentMethod"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textColor="@color/Black"
+                            android:textStyle="bold"
+                            android:layout_marginTop="10dp"
+                            android:textSize="16sp"
+                            android:text="QRIS"
+                            tools:ignore="HardcodedText" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:textColor="@color/Black"
-                                android:layout_marginTop="16dp"
-                                android:textSize="16sp"
-                                android:text="Silahkan scan QRIS dibawah ini untuk melakukan pembayaran"
-                                tools:ignore="HardcodedText" />
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rvPaymentMethod"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            tools:listitem="@layout/row_item_payment_account"
+                            tools:itemCount="1"/>
 
-                            <ImageView
-                                android:visibility="visible"
-                                android:id="@+id/img_qris"
-                                android:layout_width="match_parent"
-                                android:layout_height="500dp"
-                                android:layout_marginTop="10dp"
-                                android:layout_marginStart="@dimen/d20"
-                                android:layout_marginEnd="20dp"
-                                android:src="@drawable/qris_selada"/>
+                        <Button
+                            android:id="@+id/btnUpdateNetPrice"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:layout_marginTop="20dp"
+                            android:visibility="visible"
+                            android:textColor="@color/white"
+                            android:background="@drawable/background_button"
+                            android:text="Update Net Price"
+                            tools:ignore="HardcodedText" />
 
-                            <Button
-                                android:id="@+id/btnKonfirmasi"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="20dp"
-                                android:visibility="visible"
-                                android:layout_marginStart="16dp"
-                                android:layout_marginEnd="16dp"
-                                android:textColor="@color/white"
-                                android:background="@drawable/background_button"
-                                android:text="Konfirmasi Pembayaran"
-                                tools:ignore="HardcodedText" />
+                        <Button
+                            android:id="@+id/btnKonfirmasi"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:layout_marginTop="6dp"
+                            android:visibility="gone"
+                            android:textColor="@color/white"
+                            android:background="@drawable/background_button"
+                            android:text="Selesaikan Pesanan"
+                            tools:ignore="HardcodedText" />
 
-                        </LinearLayout>
+                        <Button
+                            android:id="@+id/btnUploadImage"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:layout_marginTop="6dp"
+                            android:textColor="@color/white"
+                            android:background="@drawable/background_button"
+                            android:text="Upload Bukti Pembayaran"
+                            tools:ignore="HardcodedText" />
 
                         <RelativeLayout
                             android:layout_width="match_parent"
@@ -380,15 +510,15 @@
                                     android:layout_height="@dimen/d6"/>
 
                                 <Button
-                                    android:id="@+id/btnVoid"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="4dp"
-                                    android:layout_marginEnd="4dp"
-                                    android:textColor="@color/white"
-                                    android:background="@drawable/background_button"
-                                    android:text="BATALKAN TRANSAKSI"
-                                    tools:ignore="HardcodedText" />
+                                android:id="@+id/btnVoid"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:layout_marginEnd="4dp"
+                                android:textColor="@color/white"
+                                android:background="@drawable/background_button"
+                                android:text="BATALKAN PESANAN"
+                                tools:ignore="HardcodedText" />
 
                             </LinearLayout>
 
@@ -413,7 +543,7 @@
 
             </LinearLayout>
 
-        </ScrollView>
+        </android.support.v4.widget.NestedScrollView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

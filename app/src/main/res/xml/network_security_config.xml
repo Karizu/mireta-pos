@@ -4,5 +4,8 @@
         <domain includeSubdomains="true">54.255.97.130</domain>
         <domain includeSubdomains="true">36.94.58.180</domain>
         <domain includeSubdomains="true">36.94.58.181</domain>
+        <domain includeSubdomains="true">36.94.58.178</domain>
+        <domain includeSubdomains="true">https://mireta.selada.id</domain>
+        <domain includeSubdomains="true">mireta.selada.id</domain>
     </domain-config>
 </network-security-config>

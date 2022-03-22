@@ -53,6 +53,9 @@ public class Item implements Serializable
     @SerializedName("deleted_at")
     @Expose
     private String deletedAt;
+    @SerializedName("is_up_price")
+    @Expose
+    private int isUpPrice;
     private final static long serialVersionUID = -3527516756971508820L;
 
     public Integer getId() {
@@ -175,4 +178,11 @@ public class Item implements Serializable
         this.deletedAt = deletedAt;
     }
 
+    public int getIsUpPrice() {
+        return isUpPrice;
+    }
+
+    public void setIsUpPrice(int isUpPrice) {
+        this.isUpPrice = isUpPrice;
+    }
 }

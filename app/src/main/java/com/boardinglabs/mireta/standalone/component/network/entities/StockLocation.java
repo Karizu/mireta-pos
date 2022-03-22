@@ -1,6 +1,7 @@
 package com.boardinglabs.mireta.standalone.component.network.entities;
 
 import com.boardinglabs.mireta.standalone.component.network.entities.Items.Brand;
+import com.boardinglabs.mireta.standalone.component.network.entities.Trx.Location;
 
 public class StockLocation {
     public String id;
@@ -12,6 +13,7 @@ public class StockLocation {
     public String name;
     public String address;
     public String telp;
+    public Location location;
     public Business business;
     public Brand brand;
 }

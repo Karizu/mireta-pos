@@ -19,6 +19,7 @@ import com.boardinglabs.mireta.standalone.R;
 import com.boardinglabs.mireta.standalone.component.listener.ItemActionListener;
 import com.boardinglabs.mireta.standalone.component.network.entities.Item;
 import com.boardinglabs.mireta.standalone.component.network.entities.User;
+//import com.boardinglabs.mireta.standalone.component.util.CustomBottomSheetDialog;
 import com.boardinglabs.mireta.standalone.component.util.MethodUtil;
 import com.boardinglabs.mireta.standalone.component.util.PreferenceManager;
 import com.boardinglabs.mireta.standalone.modul.transactions.items.ItemsActivity;
@@ -39,11 +40,12 @@ public class RecyItemsAdapter extends BaseSwipeAdapter {
     private User user;
     private View v;
     private Context mContext;
+    private boolean isGridLayout = false;
 
-    public RecyItemsAdapter() {
-
+    public RecyItemsAdapter(boolean isGridLayout) {
         user = PreferenceManager.getUser();
         itemList = new ArrayList<>();
+        this.isGridLayout = isGridLayout;
     }
 
     @Override
@@ -53,10 +55,14 @@ public class RecyItemsAdapter extends BaseSwipeAdapter {
 
     @Override
     public View generateView(final int position, ViewGroup parent) {
-        v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_item, null);
+        if (isGridLayout) {
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_item_grid, null);
+        } else {
+            v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_item, null);
+        }
+
         final SwipeLayout swipeLayout = (SwipeLayout) v.findViewById(getSwipeLayoutResourceId(position));
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
-        final Item item = itemList.get(position);
 
         return v;
     }
@@ -179,14 +185,15 @@ public class RecyItemsAdapter extends BaseSwipeAdapter {
             });
 
             normal_add_button.setOnClickListener(view -> {
+//                CustomBottomSheetDialog bottomSheet = new CustomBottomSheetDialog(mContext);
+//                bottomSheet.show(((AppCompatActivity)mContext).getSupportFragmentManager(), "exampleBottomSheet");
+
                 Item item1 = itemList.get(position);
 
                 if (item1.getQty() != null) {
                     int totalQty = Integer.parseInt(item1.getQty());
-                    Log.d("TAG QTY", "" + totalQty);
                     if (totalQty > 0) {
                         item1.order_qty += 1;
-                        Log.d("TAG ORDER QTY", "" + item1.getOrder_qty());
                         if (item1.getOrder_qty() <= totalQty) {
                             itemActionListener.itemAdd(position);
                             addItem(position, add_button_container, add_minus_button_container, qty_input);
@@ -206,12 +213,6 @@ public class RecyItemsAdapter extends BaseSwipeAdapter {
                         ((ItemsActivity) mContext).showSnackbar();
                     }
                 }
-
-//                totalQty = item.getTotal_qty().total_qty;
-//                Log.d("TAG QTY", totalQty);
-//                item.order_qty += 1;
-//                itemActionListener.itemAdd(position);
-//                addItem(position, add_button_container, add_minus_button_container, qty_input);
             });
 
             container.setOnClickListener(new View.OnClickListener() {
@@ -221,27 +222,6 @@ public class RecyItemsAdapter extends BaseSwipeAdapter {
                 }
             });
         }
-
-
-
-//        if (item.total_today_qty != null) {
-//            if (!item.total_today_qty.getTotal_daily_qty().equals("0")) {
-//                item_stok.setText("Stok : " + item.total_today_qty.getTotal_daily_qty());
-//                normal_add_button.setBackground(ContextCompat.getDrawable(mContext, R.drawable.border_round_gradient));
-//                item_stok.setTextColor(ContextCompat.getColor(mContext, R.color.gray_primary_dark));
-//                normal_add_button.setEnabled(true);
-//            } else {
-//                item_stok.setText("Stok Habis");
-//                normal_add_button.setBackground(ContextCompat.getDrawable(mContext, R.drawable.gray_button_background));
-//                item_stok.setTextColor(ContextCompat.getColor(mContext, R.color.red_alert));
-//                normal_add_button.setEnabled(false);
-//            }
-//        } else {
-//            item_stok.setText("Stok Habis");
-//            normal_add_button.setBackground(ContextCompat.getDrawable(mContext, R.drawable.gray_button_background));
-//            item_stok.setTextColor(ContextCompat.getColor(mContext, R.color.red_alert));
-//            normal_add_button.setEnabled(false);
-//        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -250,7 +230,6 @@ public class RecyItemsAdapter extends BaseSwipeAdapter {
         if (item.order_qty >= 1) {
             int totalQty;
             totalQty = Integer.parseInt(item.getQty());
-            Log.d("TAG QTY", "" + totalQty);
             if (item.getOrder_qty() <= totalQty) {
                 add_button_container.setVisibility(View.GONE);
                 add_minus_button_container.setVisibility(View.VISIBLE);

@@ -208,6 +208,7 @@ public class LoginActivity extends AppCompatActivity implements CommonInterface,
     @Override
     public void onSuccessRequest() {
         Intent intent = new Intent(this, HomeActivity.class);
+        intent.putExtra("isFromLogin", true);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

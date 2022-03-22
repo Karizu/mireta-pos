@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:textSize="13sp"
-    android:gravity="center"
+    android:gravity="start"
     android:hint="Kategori"
     android:textColorHint="@color/Black"
     tools:ignore="HardcodedText" />

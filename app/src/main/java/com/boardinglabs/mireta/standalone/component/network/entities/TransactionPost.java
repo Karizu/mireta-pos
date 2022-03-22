@@ -1,6 +1,8 @@
 package com.boardinglabs.mireta.standalone.component.network.entities;
 
 
+import com.boardinglabs.mireta.standalone.component.network.entities.ItemVariants.ItemVariants;
+
 import java.util.List;
 
 public class TransactionPost {
@@ -20,6 +22,8 @@ public class TransactionPost {
     public String partnerID;
     public List<Stock> details;
     public String partner_acc_no;
+    public String location_operation_id;
+    public String transaction_type;
 
     public TransactionPost(String stock_location_id, String manual_transaction_code, int payment_type, int payment_method, int status, String total_discount, String aggregator_id, List<Items> items) {
         this.stock_location_id = stock_location_id;
@@ -40,6 +44,21 @@ public class TransactionPost {
         this.payment_type = payment_type;
         this.payment_method = payment_method;
         this.status = status;
+        this.details = details;
+        this.partnerID = partnerID;
+        this.partner_acc_no = partner_acc_no;
+    }
+
+    public TransactionPost(String location_id, String transaction_code, long total_qty, String total_price, int payment_type, int payment_method, int status, List<Stock> details,String partnerID, String partner_acc_no, String location_operation_id, String transaction_type) {
+        this.location_id = location_id;
+        this.location_operation_id = location_operation_id;
+        this.transaction_code = transaction_code;
+        this.payment_type = payment_type;
+        this.payment_method = payment_method;
+        this.status = status;
+        this.total_price = Long.parseLong(total_price);
+        this.total_qty = total_qty;
+        this.transaction_type = transaction_type;
         this.details = details;
         this.partnerID = partnerID;
         this.partner_acc_no = partner_acc_no;
@@ -149,6 +168,14 @@ public class TransactionPost {
         this.items = items;
     }
 
+    public String getLocation_operation_id() {
+        return location_operation_id;
+    }
+
+    public void setLocation_operation_id(String location_operation_id) {
+        this.location_operation_id = location_operation_id;
+    }
+
     public static class Stock {
         private String stock_id;
         private long qty;
@@ -233,5 +260,7 @@ public class TransactionPost {
         public void setItem_discount(long item_discount) {
             this.item_discount = item_discount;
         }
+
+
     }
 }

@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boardinglabs.mireta.standalone.R;
+import com.boardinglabs.mireta.standalone.component.network.entities.Report.NewReportModels;
 import com.boardinglabs.mireta.standalone.component.network.entities.Report.ReportModels;
 
 import java.text.NumberFormat;
@@ -23,19 +24,15 @@ import java.util.Locale;
 
 public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder> {
     private LinkedHashMap<String, ArrayList<ReportModels>> itemCategory;
-    private ArrayList<ReportModels> reportModels;
+    private List<NewReportModels> reportModels;
     private Context context;
-    private Dialog dialog;
-    private BottomSheetDialog dialogBottom;
-    private List<String> itemImages;
-    private String stock_location_id;
 
     public ReportAdapter(LinkedHashMap<String, ArrayList<ReportModels>> itemCategory, Context context) {
         this.itemCategory = itemCategory;
         this.context = context;
     }
 
-    public ReportAdapter(ArrayList<ReportModels> reportModels, Context context) {
+    public ReportAdapter(List<NewReportModels> reportModels, Context context) {
         this.reportModels = reportModels;
         this.context = context;
     }
@@ -53,62 +50,19 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ReportAdapter.ViewHolder holder, int position) {
         try {
-            ReportModels models = reportModels.get(position);
+            NewReportModels models = reportModels.get(position);
             holder.tvCategory.setText(models.getCategory_name());
-            holder.tvName.setText(models.getItem_name());
-            int mHarga = Integer.parseInt(models.getItem_price());
-            holder.tvAmount.setText("Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mHarga));
-            holder.tvQty.setText(models.getItem_qty() + " pcs");
-            int mTotal = mHarga*models.getItem_qty();
-            holder.tvTotal.setText("Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mTotal));
-        } catch (Exception e) {
-            position = 0;
-        }
-//        for (int i = 0; i < itemCategory.size(); i++) {
-//            ArrayList<ReportModels> reportModels = (new ArrayList<>(itemCategory.values())).get(i);
-//            try {
-//                ReportModels models = reportModels.get(position);
-//                holder.tvCategory.setText(models.getCategory_name());
-//                holder.tvName.setText(models.getItem_name());
-//                int mHarga = Integer.parseInt(models.getItem_price());
-//                holder.tvAmount.setText("Rp. " + NumberFormat.getNumberInstance(Locale.US).format(mHarga));
-//                holder.tvQty.setText(models.getItem_qty()+" pcs");
-//            } catch (Exception e){
-//                position = 0;
-//            }
-//
-//        }
-//
-//        for (Map.Entry<String, ArrayList<ReportModels>> entry : itemCategory.entrySet()) {
-//            ArrayList<ReportModels> reportModels = itemCategory.get(entry.getKey());
-//            ReportModels models = reportModels.get(position);
-//        }
 
-//        final ArrayList<ReportModels> reportModels = itemCategory.values().get(position);
-//        final String id = transactionModel.getId();
-//        final String name = transactionModel.getName();
-//        final String description = transactionModel.getDeskripsi();
-//        String qty = transactionModel.getTotal_qty();
-//        String is_daily_stok = transactionModel.getIs_daily_stock();
-//        final String harga = transactionModel.getHarga();
-//
-//        holder.tvName.setText(name);
-//        holder.tvAmount.setText(description);
-//        holder.tvQty.setText(qty+" Pcs");
-//        holder.layout.setOnClickListener(view -> {
-//
-//        });
+            ChildReportAdapter adapter = new ChildReportAdapter(models.getChildReportModels(), context);
+            holder.childItem.setAdapter(adapter);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public int getItemCount() {
-//        int count = 0;
-//        for (int i = 0; i < itemCategory.size(); i++) {
-//            ArrayList<ReportModels> reportModels = (new ArrayList<>(itemCategory.values())).get(i);
-//            count += reportModels.size();
-//        }
-//        Log.d("TAG COUNT", count+"");
-//        return count;
         return reportModels.size();
     }
 
@@ -120,6 +74,7 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
         TextView tvTotal;
         View line;
         LinearLayout layout;
+        RecyclerView childItem;
 
         ViewHolder(View v) {
             super(v);
@@ -131,6 +86,7 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
             tvTotal = v.findViewById(R.id.tvTotal);
             line = v.findViewById(R.id.viewLine);
             layout = v.findViewById(R.id.layoutPenjualan);
+            childItem = v.findViewById(R.id.childItem);
         }
     }
 }

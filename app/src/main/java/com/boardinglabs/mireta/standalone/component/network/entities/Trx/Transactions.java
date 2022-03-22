@@ -3,6 +3,8 @@ package com.boardinglabs.mireta.standalone.component.network.entities.Trx;
 
 import java.io.Serializable;
 import java.util.List;
+
+import com.boardinglabs.mireta.standalone.component.network.entities.PaymentMethodResponse;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -24,12 +26,24 @@ public class Transactions implements Serializable
     @SerializedName("payment_method")
     @Expose
     private Integer paymentMethod;
+    @SerializedName("payment_method_obj")
+    @Expose
+    private PaymentMethodResponse paymentMethodObj;
+    @SerializedName("transaction_type_obj")
+    @Expose
+    private PaymentMethodResponse transactionTypeObj;
+    @SerializedName("discounts")
+    @Expose
+    private List<DiscountResponse> discounts;
     @SerializedName("status")
     @Expose
     private Integer status;
     @SerializedName("total_price")
     @Expose
     private String totalPrice;
+    @SerializedName("total_net_price")
+    @Expose
+    private String totalNetPrice;
     @SerializedName("total_discount")
     @Expose
     private String totalDiscount;
@@ -94,6 +108,22 @@ public class Transactions implements Serializable
 
     public void setPaymentMethod(Integer paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public PaymentMethodResponse getPaymentMethodObj() {
+        return paymentMethodObj;
+    }
+
+    public void setPaymentMethodObj(PaymentMethodResponse paymentMethodObj) {
+        this.paymentMethodObj = paymentMethodObj;
+    }
+
+    public PaymentMethodResponse getTransactionTypeObj() {
+        return transactionTypeObj;
+    }
+
+    public void setTransactionTypeObj(PaymentMethodResponse transactionTypeObj) {
+        this.transactionTypeObj = transactionTypeObj;
     }
 
     public Integer getStatus() {
@@ -176,4 +206,19 @@ public class Transactions implements Serializable
         this.details = details;
     }
 
+    public String getTotalNetPrice() {
+        return totalNetPrice;
+    }
+
+    public void setTotalNetPrice(String totalNetPrice) {
+        this.totalNetPrice = totalNetPrice;
+    }
+
+    public List<DiscountResponse> getDiscounts() {
+        return discounts;
+    }
+
+    public void setDiscounts(List<DiscountResponse> discounts) {
+        this.discounts = discounts;
+    }
 }

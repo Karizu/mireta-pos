@@ -44,6 +44,10 @@ public class LaporanActivity extends BaseActivity {
     private Dialog dialog;
     private Context context;
 
+    @OnClick(R.id.btnLaporanStok)
+    void onClickLaporanStok(){
+        startActivity(new Intent(LaporanActivity.this, LaporanStock.class));
+    }
 
     @OnClick(R.id.btnLaporanPenjualan)
     void onClickPenjualan(){
@@ -57,7 +61,8 @@ public class LaporanActivity extends BaseActivity {
 
     @OnClick(R.id.btnHistoryTransaksi)
     void onClickHistory(){
-        startActivity(new Intent(LaporanActivity.this, HistoryActivity.class));
+        Intent intent = new Intent(LaporanActivity.this, HistoryActivity.class);
+        startActivity(intent);
     }
 
     @SuppressLint("SetTextI18n")

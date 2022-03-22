@@ -42,7 +42,12 @@ public class ProfilTokoActivity extends BaseActivity {
 
     @OnClick(R.id.btnSimpan)
     void onClick(){
-        doSaveProfil();
+        if (etNoTelp.getText().toString().startsWith("08") || etNoTelp.getText().toString().startsWith("02")){
+            doSaveProfil();
+            return;
+        }
+
+        Toast.makeText(context, "Masukkan nomor telepon dengan benar", Toast.LENGTH_SHORT).show();
     }
 
     @Override

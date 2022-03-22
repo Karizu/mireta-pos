@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/d10"
+    android:orientation="horizontal">
+
+    <ImageButton
+        android:layout_width="@dimen/d25"
+        android:layout_height="@dimen/d25"
+        android:background="@drawable/border_round_red"
+        android:id="@+id/delete_button"
+        android:src="@drawable/close"/>
+
+    <TextView
+        android:id="@+id/item_qty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/d10"
+        android:paddingEnd="@dimen/d10"
+        android:textColor="@color/Black"
+        android:text="1x"
+        />
+
+    <TextView
+        android:id="@+id/item_detail_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Pempek Lenjer (1), Pempek Adaan (2), Pempek Adaan (2)"
+        />
+
+    <TextView
+        android:id="@+id/item_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/d10"
+        android:paddingEnd="@dimen/d10"
+        android:textColor="@color/Black"
+        android:text="20.000"
+        />
+
+</LinearLayout>

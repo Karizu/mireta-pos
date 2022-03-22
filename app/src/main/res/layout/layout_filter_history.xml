@@ -103,6 +103,7 @@
                     android:orientation="horizontal">
 
                     <CheckedTextView
+                        android:visibility="gone"
                         android:id="@+id/ctvAll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -116,18 +117,19 @@
 
 
                     <View
+                        android:visibility="gone"
                         android:layout_width="8dp"
                         android:layout_height="1dp"/>
 
                     <CheckedTextView
-                        android:id="@+id/ctvToday"
+                        android:id="@+id/ctvSemuaTransaksi"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/d15"
                         android:gravity="center"
                         android:background="@drawable/list_item_selector"
                         android:checkMark="@drawable/background_check_mark"
-                        android:text="Transaksi Hari ini"
+                        android:text="Semua Transaksi"
                         android:textSize="13sp"
                         tools:ignore="HardcodedText" />
 
@@ -136,14 +138,14 @@
                         android:layout_height="1dp"/>
 
                     <CheckedTextView
-                        android:id="@+id/ctvMonth"
+                        android:id="@+id/ctvMy"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/d15"
                         android:gravity="center"
                         android:background="@drawable/list_item_selector"
                         android:checkMark="@drawable/background_check_mark"
-                        android:text="Transaksi Bulan ini"
+                        android:text="Hanya Transaksi Saya"
                         android:textSize="13sp"
                         tools:ignore="HardcodedText" />
 
@@ -203,13 +205,15 @@
             android:layout_height="@dimen/d6"/>
 
         <TextView
+            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Status"
+            android:text="Date"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 
         <HorizontalScrollView
+            android:visibility="visible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -236,14 +240,14 @@
                     android:orientation="horizontal">
 
                     <CheckedTextView
-                        android:id="@+id/ctvStatusAll"
+                        android:id="@+id/ctvDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/d15"
                         android:gravity="center"
                         android:background="@drawable/list_item_selector"
                         android:checkMark="@drawable/background_check_mark"
-                        android:text="Semua"
+                        android:text="Pilih Tanggal"
                         android:textSize="13sp"
                         tools:ignore="HardcodedText" />
 
@@ -253,14 +257,15 @@
                         android:layout_height="1dp"/>
 
                     <CheckedTextView
-                        android:id="@+id/ctvStatusSukses"
+                        android:visibility="gone"
+                        android:id="@+id/ctvBulanIni"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/d15"
                         android:gravity="center"
                         android:background="@drawable/list_item_selector"
                         android:checkMark="@drawable/background_check_mark"
-                        android:text="Transaksi Berhasil"
+                        android:text="Bulan Ini"
                         android:textSize="13sp"
                         tools:ignore="HardcodedText" />
 
@@ -269,6 +274,7 @@
                         android:layout_height="1dp"/>
 
                     <CheckedTextView
+                        android:visibility="gone"
                         android:id="@+id/ctvStatusPending"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -285,6 +291,7 @@
                         android:layout_height="1dp"/>
 
                     <CheckedTextView
+                        android:visibility="gone"
                         android:id="@+id/ctvStatusBatal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -307,6 +314,7 @@
             android:layout_height="@dimen/d6"/>
 
         <TextView
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Settlement"
@@ -314,6 +322,7 @@
             tools:ignore="HardcodedText" />
 
         <HorizontalScrollView
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

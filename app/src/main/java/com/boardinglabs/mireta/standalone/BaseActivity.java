@@ -1,9 +1,15 @@
 package com.boardinglabs.mireta.standalone;
 
+import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
@@ -16,9 +22,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.boardinglabs.mireta.standalone.component.BluetoothHandler;
+import com.boardinglabs.mireta.standalone.component.DeviceActivity;
+import com.boardinglabs.mireta.standalone.component.PrinterCommands;
 import com.boardinglabs.mireta.standalone.component.network.entities.Business;
+import com.boardinglabs.mireta.standalone.component.network.entities.Report.ReportModels;
 import com.boardinglabs.mireta.standalone.component.network.entities.StockLocation;
 import com.boardinglabs.mireta.standalone.component.network.entities.User;
+import com.boardinglabs.mireta.standalone.component.util.Loading;
+import com.boardinglabs.mireta.standalone.component.util.Utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.jakewharton.rxbinding.view.RxView;
@@ -36,8 +48,15 @@ import com.boardinglabs.mireta.standalone.modul.old.oldhome.HomePageActivity;
 import com.boardinglabs.mireta.standalone.modul.old.oldhome.transaction.AllTransactionActivity;
 import com.boardinglabs.mireta.standalone.modul.auth.login.LoginActivity;
 import com.boardinglabs.mireta.standalone.modul.old.sendbalance.SendBalanceActivity;
+import com.zj.btsdk.BluetoothService;
+
+import java.text.NumberFormat;
+import java.util.Locale;
+import java.util.Objects;
 
 import io.socket.client.Socket;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -49,7 +68,7 @@ import rx.schedulers.Schedulers;
  * Created by Dhimas on 9/19/17.
  */
 
-public abstract class BaseActivity extends AppCompatActivity{
+public abstract class BaseActivity extends AppCompatActivity {
     protected  static  int CHANGE_PASSCODE = 11;
     protected Toolbar toolbar;
     protected ImageView backBtn;
@@ -75,7 +94,7 @@ public abstract class BaseActivity extends AppCompatActivity{
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = getApplicationContext();
+        context = this;
         loginUser = PreferenceManager.getUser();
         loginStockLocation = PreferenceManager.getStockLocation();
         loginBusiness = PreferenceManager.getBusiness();
@@ -328,11 +347,6 @@ public abstract class BaseActivity extends AppCompatActivity{
         loginUser = PreferenceManager.getUser();
         loginStockLocation = PreferenceManager.getStockLocation();
         loginBusiness = PreferenceManager.getBusiness();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     protected void logoutAction(final boolean isFromBackground) {

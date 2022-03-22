@@ -1,5 +1,6 @@
 package com.boardinglabs.mireta.standalone.modul.old.splash;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 //import com.google.firebase.iid.FirebaseInstanceId;
 //import com.google.firebase.iid.InstanceIdResult;
 import com.boardinglabs.mireta.standalone.modul.ardi.HomeArdiActivity;
+import com.bumptech.glide.Glide;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import com.orhanobut.dialogplus.DialogPlus;
@@ -39,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  * Created by Dhimas on 11/23/17.
  */
 
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends Activity {
     private String currentVersion;
     private ImageView splashOne;
     private TextView title;
@@ -50,6 +52,16 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.splash_layout);
         new PreferenceManager(this);
         splashOne = (ImageView) findViewById(R.id.img_splash_1);
+        try {
+            String image = PreferenceManager.getStockLocation().location.getBrand().getLogo_image_url();
+            Glide.with(this)
+                    .load(image)
+                    .placeholder(R.drawable.mireta_logo_stacked)
+                    .into(splashOne);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
         title = findViewById(R.id.title);
         try {
             title.setText(PreferenceManager.getStockLocation().business.name);

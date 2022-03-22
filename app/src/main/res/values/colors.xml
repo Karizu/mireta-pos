@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2E47D0</color>
+    <color name="colorPrimary">#4D3FB6</color>
     <color name="colorPrimaryDark">#0e57a2</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#F95E25</color>
 
     <color name="clear">#00FFFFFF</color>
     <color name="white">#FFFFFF</color>
@@ -58,10 +58,10 @@
 
 
     <color name="very_light_pink">#FFFAF3</color>
-    <color name="appricot">#FFB448</color>
-    <color name="dusty_orange">#FC8C1D</color>
+    <color name="appricot">#F95E25</color>
+    <color name="dusty_orange">#F95E25</color>
     <color name="orangish">#FF8834</color>
-    <color name="mireta_blue">#2E41D8</color>
+    <color name="mireta_blue">#4D3FB6</color>
     <color name="shadow_light_gray">#A5A3A3</color>
     <color name="warm_blue">#3559DA</color>
     <color name="dark_sky_blue">#42ADFC</color>

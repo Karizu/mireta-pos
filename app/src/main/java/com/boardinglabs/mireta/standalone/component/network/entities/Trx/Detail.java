@@ -23,9 +23,15 @@ public class Detail implements Serializable
     @SerializedName("sales_price")
     @Expose
     private String salesPrice;
+    @SerializedName("total_price")
+    @Expose
+    private String totalPrice;
     @SerializedName("item_discount")
     @Expose
     private String itemDiscount;
+    @SerializedName("description")
+    @Expose
+    private String description;
     @SerializedName("created_by")
     @Expose
     private String createdBy;
@@ -142,4 +148,19 @@ public class Detail implements Serializable
         this.stock = stock;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(String totalPrice) {
+        this.totalPrice = totalPrice;
+    }
 }

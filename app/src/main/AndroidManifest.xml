@@ -3,123 +3,158 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.boardinglabs.mireta.standalone">
 
+    <uses-sdk tools:overrideLibrary="com.leo.searchablespinner"/>
+
+    <permission
+        android:name="${applicationId}.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
+    <permission android:name="${applicationId}.permission.CAMERA" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:node="replace" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="${applicationId}.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="android.permission.CLOUDPOS_CONTACTLESS_CARD" />
+    <uses-permission android:name="android.permission.CLOUDPOS_DEFAULT_LAUNCHER" />
+    <uses-permission android:name="android.permission.CLOUDPOS_PRINTER" />
+
     <application
-        android:name="com.boardinglabs.mireta.standalone.MiretaPOSApplication"
+        android:name=".MiretaPOSApplication"
         android:allowBackup="true"
         android:debuggable="false"
         android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_desaku"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:roundIcon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_desaku_round"
         android:supportsRtl="true"
         android:theme="@style/FullScreenTheme"
         tools:ignore="HardcodedDebugMode"
         tools:replace="android:icon">
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.launcher.LauncherActivity"></activity>
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.ardi.freemeal.FreeMeal" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.ardi.registermember.RegisterMember" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.akun.rfid.RfidActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.transactions.items.voids.VoidActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.master.katalog.KatalogActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.akun.pengaturan.PengaturanAkunActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.ardi.historytopup.HistoryTopupActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.ardi.SaldoActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.ardi.pengaturan.PengaturanActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.transactions.items.pembayaran.pembayaranardi.PembayaranArdiActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.ardi.TopupSuksesActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.ardi.HomeArdiActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.auth.recoverpassword.RecoverPasswordActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.auth.forgotpassword.ForgotPasswordActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.transactions.items.pembayaran.PembayaranSuksesActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.component.util.PhotoUpdateUtil" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.akun.ubahpassword.UbahPaswordActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.auth.RegisterActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.transactions.items.pembayaran.scancode.ScanCodeActivity" />
+        <activity android:name=".modul.productreceipt.CreateProductReceipt"></activity>
+        <activity android:name=".modul.productreceipt.DetailProductReceiptActivity" />
+        <activity android:name=".modul.productreceipt.ProductReceiptActivity" />
+        <activity android:name=".modul.damageditem.CreateDamagedItemActivity" />
+        <activity android:name=".modul.damageditem.DamagedItemActivity" />
+        <activity android:name=".modul.expenditure.CreateExpenditureActivity" />
+        <activity android:name=".modul.expenditure.DetailExpenditureActivity" />
+        <activity android:name=".modul.expenditure.ExpenditureActivity" />
+        <activity android:name=".modul.operasional.OperasionalActivity" />
+        <activity android:name=".modul.launcher.LauncherActivity" />
+        <activity android:name=".modul.ardi.freemeal.FreeMeal" />
+        <activity android:name=".modul.ardi.registermember.RegisterMember" />
+        <activity android:name=".modul.akun.rfid.RfidActivity" />
+        <activity android:name=".modul.transactions.items.voids.VoidActivity" />
+        <activity android:name=".modul.master.katalog.KatalogActivity" />
+        <activity android:name=".modul.akun.pengaturan.PengaturanAkunActivity" />
+        <activity android:name=".modul.ardi.historytopup.HistoryTopupActivity" />
+        <activity android:name=".modul.ardi.SaldoActivity" />
+        <activity android:name=".modul.ardi.pengaturan.PengaturanActivity" />
+        <activity android:name=".modul.transactions.items.pembayaran.pembayaranardi.PembayaranArdiActivity" />
+        <activity android:name=".modul.ardi.TopupSuksesActivity" />
+        <activity android:name=".modul.ardi.HomeArdiActivity" />
+        <activity android:name=".modul.auth.recoverpassword.RecoverPasswordActivity" />
+        <activity android:name=".modul.auth.forgotpassword.ForgotPasswordActivity" />
+        <activity android:name=".modul.transactions.items.pembayaran.PembayaranSuksesActivity" />
+        <activity android:name=".component.util.PhotoUpdateUtil" />
+        <activity android:name=".modul.akun.ubahpassword.UbahPaswordActivity" />
+        <activity android:name=".modul.auth.RegisterActivity" />
+        <activity android:name=".modul.transactions.items.pembayaran.scancode.ScanCodeActivity" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.master.printer.PrinterActivity"
+            android:name=".modul.master.printer.PrinterActivity"
             android:label="@string/title_activity_printer"
             android:theme="@style/FullScreenTheme.NoActionBar" />
-        <activity android:name="com.boardinglabs.mireta.standalone.component.DeviceActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.component.util.Scanner" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.master.laporan.LaporanStock" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.master.laporan.LaporanPenjualan" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.master.laporan.LaporanActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.master.stok.inventori.TambahBarangActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.master.stok.inventori.StokActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.master.categories.CategoryActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.master.brand.BrandActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.master.profil.toko.ProfilTokoActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.transactions.items.pembayaran.PembayaranActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.akun.AkunActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.history.DetailTransactionActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.history.HistoryActivity" /> <!-- <service android:name=".messaging.MyFirebaseMessagingService"> -->
+        <activity android:name=".component.DeviceActivity" />
+        <activity android:name=".component.util.Scanner" />
+        <activity android:name=".modul.master.laporan.LaporanStock" />
+        <activity android:name=".modul.master.laporan.LaporanPenjualan" />
+        <activity android:name=".modul.master.laporan.LaporanActivity" />
+        <activity android:name=".modul.master.stok.inventori.TambahBarangActivity" />
+        <activity android:name=".modul.master.stok.inventori.StokActivity" />
+        <activity android:name=".modul.master.categories.CategoryActivity" />
+        <activity android:name=".modul.master.brand.BrandActivity" />
+        <activity android:name=".modul.master.profil.toko.ProfilTokoActivity" />
+        <activity android:name=".modul.transactions.items.pembayaran.PembayaranActivity" />
+        <activity android:name=".modul.akun.AkunActivity" />
+        <activity android:name=".modul.history.DetailTransactionActivity" />
+        <activity android:name=".modul.history.HistoryActivity" /> <!-- <service android:name=".messaging.MyFirebaseMessagingService"> -->
         <!-- <intent-filter> -->
         <!-- <action android:name="com.google.firebase.MESSAGING_EVENT" /> -->
         <!-- </intent-filter> -->
         <!-- </service> -->
         <activity
-            android:name="com.boardinglabs.mireta.standalone.MainActivity"
+            android:name=".MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.oldhome.HomePageActivity"
+            android:name=".modul.old.oldhome.HomePageActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.topup.topup.TopupActivity"
+            android:name=".modul.old.topup.topup.TopupActivity"
             android:screenOrientation="portrait" />
         <!--
      Set custom default icon. This is used when no icon is set for incoming notification messages.
      See README(https://goo.gl/l4GJaQ) for more.
         -->
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.topup.topuptransfer.TransferTopupActivity"
+            android:name=".modul.old.topup.topuptransfer.TransferTopupActivity"
             android:screenOrientation="portrait" />
         <!--
              Set color used with incoming notification messages. This is used when no color is set for the incoming
              notification message. See README(https://goo.gl/6BKBk7) for more.
         -->
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.topup.topupmethod.PaymentMethodTopupActivity"
+            android:name=".modul.old.topup.topupmethod.PaymentMethodTopupActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.topup.topupstatus.StatusTopupActivity"
+            android:name=".modul.old.topup.topupstatus.StatusTopupActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.purchase.PurchaseActivity"
+            android:name=".modul.old.purchase.PurchaseActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.register.passcode.PasscodeActivity"
+            android:name=".modul.old.register.passcode.PasscodeActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.auth.login.LoginActivity"
+            android:name=".modul.auth.login.LoginActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.register.otp.OtpActivity"
+            android:name=".modul.old.register.otp.OtpActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.register.RegisterActivity"
+            android:name=".modul.old.register.RegisterActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.baznas.donate.DonateActivity"
+            android:name=".modul.old.baznas.donate.DonateActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.baznas.BaznasActivity"
+            android:name=".modul.old.baznas.BaznasActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.bpjs.bpjsforms.BpjsFormActivity"
+            android:name=".modul.old.bpjs.bpjsforms.BpjsFormActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.bpjs.BpjsKetenagakerjaanActivity"
+            android:name=".modul.old.bpjs.BpjsKetenagakerjaanActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.splash.SplashActivity"
+            android:name=".modul.old.splash.SplashActivity"
             android:configChanges="orientation|screenSize"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -129,116 +164,116 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.sendbalance.SendBalanceActivity"
+            android:name=".modul.old.sendbalance.SendBalanceActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.sendbalance.SendBalanceActivityCopy"
+            android:name=".modul.old.sendbalance.SendBalanceActivityCopy"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.requestbalance.RequestBalanceActivity"
+            android:name=".modul.old.requestbalance.RequestBalanceActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.checkpasscode.CheckPasscodeActivity"
+            android:name=".modul.old.checkpasscode.CheckPasscodeActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.transactionreview.TransactionReviewActivity"
+            android:name=".modul.old.transactionreview.TransactionReviewActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.scanqr.InputAmountActivity"
+            android:name=".modul.old.scanqr.InputAmountActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.chat.ChatActivity"
+            android:name=".modul.old.chat.ChatActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.editprofile.EditProfileActivity"
+            android:name=".modul.old.editprofile.EditProfileActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.termcondition.TermConditionActivity"
+            android:name=".modul.old.termcondition.TermConditionActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.auth.login.passcode.ForgotPassActivity"
+            android:name=".modul.auth.login.passcode.ForgotPassActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.dialogactivity.DialogAttachPicture"
+            android:name=".modul.old.dialogactivity.DialogAttachPicture"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.faq.FaqActivity"
+            android:name=".modul.old.faq.FaqActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.scanqr.ScanQRActivity"
+            android:name=".modul.old.scanqr.ScanQRActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.oldhome.transaction.AllTransactionActivity"
+            android:name=".modul.old.oldhome.transaction.AllTransactionActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.topup.topupcreditcard.CreditcardTopupActivity"
+            android:name=".modul.old.topup.topupcreditcard.CreditcardTopupActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.creditcard.inputcreditcard.InputCreditcardActivity"
+            android:name=".modul.old.creditcard.inputcreditcard.InputCreditcardActivity"
             android:screenOrientation="portrait" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.old.creditcard.webview.VeritransWebViewActivity" />
+        <activity android:name=".modul.old.creditcard.webview.VeritransWebViewActivity" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.bayar.BayarActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.merchant.merchantlist.MerchantListActivity"
+            android:name=".modul.old.bayar.BayarActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.merchant.detail.MerchantDetailActivity"
+            android:name=".modul.old.merchant.merchantlist.MerchantListActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.creditcard.savedcreditcard.SavedCreditcardActivity"
+            android:name=".modul.old.merchant.detail.MerchantDetailActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.creditcard.detailcreditcard.DetailCreditcardActivity"
+            android:name=".modul.old.creditcard.savedcreditcard.SavedCreditcardActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.creditcard.addcreditcard.AddCreditcardActivity"
+            android:name=".modul.old.creditcard.detailcreditcard.DetailCreditcardActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.promo.PromoActivity"
+            android:name=".modul.old.creditcard.addcreditcard.AddCreditcardActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.promo.detail.PromoDetailActivity"
+            android:name=".modul.old.promo.PromoActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.topup.topupvirtualaccount.VirtualAccountActivity"
+            android:name=".modul.old.promo.detail.PromoDetailActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.verify.VerifyActivity"
+            android:name=".modul.old.topup.topupvirtualaccount.VirtualAccountActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.feed.posts.CreatePostActivity"
+            android:name=".modul.old.verify.VerifyActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.feed.posts.PostDetailActivity"
+            android:name=".modul.old.feed.posts.CreatePostActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.customer.ContactCustomerActivity"
+            android:name=".modul.old.feed.posts.PostDetailActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.feed.chats.ChatActivity"
+            android:name=".modul.old.customer.ContactCustomerActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.account.SettingActivity"
+            android:name=".modul.old.feed.chats.ChatActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.topup.jiwasrayastatus.StatusJiwasrayaActivity"
+            android:name=".modul.old.account.SettingActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.transactionreviewjiwasraya.TransactionReviewJiwasrayaActivity"
+            android:name=".modul.old.topup.jiwasrayastatus.StatusJiwasrayaActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.old.jiwasraya.JiwasrayaActivity"
+            android:name=".modul.old.transactionreviewjiwasraya.TransactionReviewJiwasrayaActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".modul.old.jiwasraya.JiwasrayaActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.old.onboard.OnBoardActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.old.invite.InviteActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.old.about.AboutActivity" />
-        <activity android:name="com.boardinglabs.mireta.standalone.modul.old.account.ChangePasswordActivity" />
+        <activity android:name=".modul.old.onboard.OnBoardActivity" />
+        <activity android:name=".modul.old.invite.InviteActivity" />
+        <activity android:name=".modul.old.about.AboutActivity" />
+        <activity android:name=".modul.old.account.ChangePasswordActivity" />
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.home.HomeActivity"
+            android:name=".modul.home.HomeActivity"
             android:screenOrientation="portrait" /> <!-- <activity -->
         <!-- android:name=".modul.deals.review.DealReviewActivity" -->
         <!-- android:screenOrientation="portrait"></activity> -->
@@ -262,11 +297,21 @@
         <!-- android:screenOrientation="portrait" /> -->
         <!-- [START firebase_service] -->
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.master.MasterActivity"
+            android:name=".modul.master.MasterActivity"
             android:screenOrientation="portrait" /> <!-- [END firebase_service] -->
         <!-- [START firebase_iid_service] -->
         <activity
-            android:name="com.boardinglabs.mireta.standalone.modul.transactions.items.ItemsActivity"
+            android:name=".modul.pickitems.PickItemsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".modul.pickitems.PickVariantsActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".modul.pickitems.payment.PaymentActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".modul.transactions.items.ItemsActivity"
             android:screenOrientation="portrait" />
 
         <meta-data
@@ -281,28 +326,5 @@
             android:name="io.fabric.ApiKey"
             android:value="87a953b7cb44408d899baf8eb85b04fce2824a36" />
     </application>
-    <permission
-        android:name="${applicationId}.permission.MAPS_RECEIVE"
-        android:protectionLevel="signature" />
-
-    <permission android:name="${applicationId}.permission.CAMERA" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        tools:node="replace" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="${applicationId}.permission.MAPS_RECEIVE" />
-    <uses-permission android:name="android.permission.CLOUDPOS_CONTACTLESS_CARD" />
-    <uses-permission android:name="android.permission.CLOUDPOS_DEFAULT_LAUNCHER" />
-
-    <uses-permission android:name="android.permission.CLOUDPOS_PRINTER" />
 
 </manifest>

@@ -106,6 +106,26 @@
         </android.support.v4.widget.SwipeRefreshLayout>
 
         <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/btnSettlement"
+            android:layout_alignParentBottom="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/background_gradient"
+            android:padding="@dimen/d16"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/White"
+                android:text="SETTLEMENT"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/btnTambah"
             android:layout_alignParentBottom="true"
             android:layout_width="match_parent"

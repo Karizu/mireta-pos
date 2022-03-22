@@ -2,8 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/very_light_pink">
+    android:layout_height="match_parent">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -25,7 +24,7 @@
                     android:id="@+id/image_login"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/pd_logo" />
+                    android:src="@drawable/mireta_logo_only" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -137,7 +136,7 @@
                 android:layout_width="@dimen/d100"
                 android:layout_height="@dimen/d50"
                 android:layout_gravity="center"
-                android:src="@drawable/logo" />
+                android:src="@drawable/mireta_pos" />
         </LinearLayout>
 
     </ScrollView>

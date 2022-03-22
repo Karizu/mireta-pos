@@ -8,154 +8,112 @@
 
     <include layout="@layout/toolbar"/>
 
+    <ImageView
+        android:id="@+id/imgLogo"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/d150"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginTop="@dimen/d10"
+        android:src="@drawable/pd_logo"
+        android:layout_gravity="center"
+        tools:ignore="ContentDescription" />
+
+
+    <LinearLayout
+        android:id="@+id/layoutDesc"
+        android:layout_marginTop="@dimen/d20"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/d20"
+        android:paddingEnd="@dimen/d20"
+        android:layout_centerInParent="true"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <ImageView
+            android:layout_width="@dimen/d60"
+            android:layout_height="@dimen/d60"
+            android:src="@drawable/ic_check_white_24dp"
+            android:background="@drawable/circle_orange"
+            android:padding="@dimen/d16"
+            android:layout_gravity="center"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tv_desc"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:paddingStart="@dimen/d6"
+            android:text="Pembayaran Berhasil Menggunakan Metode Tunai"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar"
-        android:layout_above="@+id/btnSelesai"
-        android:padding="@dimen/d16"
-        android:weightSum="4"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/btnSelesai"
+        android:gravity="center"
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:src="@drawable/pd_logo"
-                android:layout_gravity="center"
-                tools:ignore="ContentDescription" />
-
-            <LinearLayout
-                android:layout_marginTop="@dimen/d20"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <ImageView
-                    android:layout_width="@dimen/d60"
-                    android:layout_height="@dimen/d60"
-                    android:src="@drawable/ic_check_white_24dp"
-                    android:background="@drawable/circle_orange"
-                    android:padding="@dimen/d16"
-                    android:layout_gravity="center"
-                    tools:ignore="ContentDescription" />
-
-                <TextView
-                    android:id="@+id/tv_desc"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:gravity="center"
-                    android:textSize="14sp"
-                    android:paddingStart="@dimen/d6"
-                    android:text="Pembayaran Berhasil Menggunakan Metode Tunai"
-                    tools:ignore="HardcodedText" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/d16"/>
-
-        <LinearLayout
+            android:id="@+id/btnPrintStruk"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:visibility="gone"
-            android:orientation="vertical">
+            android:layout_margin="@dimen/d16"
+            android:orientation="horizontal"
+            android:padding="@dimen/d16"
+            android:weightSum="2"
+            android:background="@drawable/background_field_orange">
+
+            <ImageView
+                android:layout_width="@dimen/d30"
+                android:layout_height="@dimen/d30"
+                android:padding="@dimen/d8"
+                android:src="@drawable/ic_print_black_24dp"
+                android:background="@drawable/circle_orange"/>
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:id="@+id/tv_text_button"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/d30"
                 android:gravity="center"
-                android:text="KEMBALIAN ANDA"
-                android:textSize="16sp"
-                tools:ignore="HardcodedText,SpUsage" />
-
-            <TextView
-                android:id="@+id/tvKembalian"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Rp. 0"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                tools:ignore="HardcodedText,SpUsage" />
+                android:layout_weight="2"
+                android:textSize="@dimen/d16"
+                android:text="Print Struk Disini"
+                tools:ignore="HardcodedText" />
 
         </LinearLayout>
 
         <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/btnBayar"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/d16"
+            android:orientation="horizontal"
+            android:padding="@dimen/d16"
+            android:weightSum="2"
+            android:background="@drawable/background_field_orange">
 
-            <LinearLayout
-                android:id="@+id/btnPrintStruk"
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="@dimen/d30"
+                android:layout_height="@dimen/d30"
+                android:padding="@dimen/d8"
+                android:src="@drawable/ic_print_black_24dp"
+                android:background="@drawable/circle_orange"/>
+
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/d16"
-                android:orientation="horizontal"
-                android:padding="@dimen/d16"
-                android:weightSum="2"
-                android:background="@drawable/background_field_orange">
-
-                <ImageView
-                    android:layout_width="@dimen/d30"
-                    android:layout_height="@dimen/d30"
-                    android:padding="@dimen/d8"
-                    android:src="@drawable/ic_print_black_24dp"
-                    android:background="@drawable/circle_orange"/>
-
-                <TextView
-                    android:id="@+id/tv_text_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_weight="2"
-                    android:textSize="@dimen/d16"
-                    android:text="Print Struk Disini"
-                    tools:ignore="HardcodedText" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:visibility="gone"
-                android:id="@+id/btnBayar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/d16"
-                android:orientation="horizontal"
-                android:padding="@dimen/d16"
-                android:weightSum="2"
-                android:background="@drawable/background_field_orange">
-
-                <ImageView
-                    android:layout_width="@dimen/d30"
-                    android:layout_height="@dimen/d30"
-                    android:padding="@dimen/d8"
-                    android:src="@drawable/ic_print_black_24dp"
-                    android:background="@drawable/circle_orange"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_weight="2"
-                    android:textSize="@dimen/d16"
-                    android:text="Bayar Disini"
-                    tools:ignore="HardcodedText" />
-
-            </LinearLayout>
+                android:gravity="center"
+                android:layout_weight="2"
+                android:textSize="@dimen/d16"
+                android:text="Bayar Disini"
+                tools:ignore="HardcodedText" />
 
         </LinearLayout>
 
@@ -171,6 +129,7 @@
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/d20"
         android:background="@drawable/background_gradient"
         android:padding="@dimen/d16"
         android:orientation="horizontal">

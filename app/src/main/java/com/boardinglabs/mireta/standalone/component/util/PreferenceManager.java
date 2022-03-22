@@ -5,6 +5,10 @@ import android.graphics.Bitmap;
 
 import com.boardinglabs.mireta.standalone.component.network.entities.Brand;
 import com.boardinglabs.mireta.standalone.component.network.entities.Business;
+import com.boardinglabs.mireta.standalone.component.network.entities.InquiryStatus.InquiryStatusOperations;
+import com.boardinglabs.mireta.standalone.component.network.entities.ItemVariants.ItemVariants;
+import com.boardinglabs.mireta.standalone.component.network.entities.PaymentTypeResponse;
+import com.boardinglabs.mireta.standalone.component.network.entities.Role;
 import com.boardinglabs.mireta.standalone.component.network.entities.StockLocation;
 import com.boardinglabs.mireta.standalone.component.network.entities.User;
 import com.orhanobut.hawk.Hawk;
@@ -13,6 +17,8 @@ import com.boardinglabs.mireta.standalone.component.network.gson.GTopup;
 import com.boardinglabs.mireta.standalone.modul.old.scanqr.QuickResponse;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Dhimas on 10/9/17.
@@ -39,6 +45,10 @@ public class PreferenceManager {
     private static final String FB_TOKEN = "firebasetoken";
     private static final String PASS_VOID = "passVoid";
     private static final String BITMAP_STRING = "bitmapString";
+    private static final String OPERATION_DATA = "operationData";
+    private static final String IS_OFFLINE_MODE = "isOfflineMode";
+    private static final String ITEM_VARIANTS_LIST = "itemVariantList";
+    private static final String TRANSACTION_TYPE_LIST = "transactionTypeList";
 
 
     private static Bitmap largeIcon;
@@ -48,6 +58,7 @@ public class PreferenceManager {
     private static final String USER = "user";
     private static final String BRAND = "brand";
     private static final String STOCK_LOCATION = "stock_location";
+    private static final String ROLE = "role";
     private static final String BUSINESS = "business";
 
     private static final String BOOTH_ID = "booth_id";
@@ -91,6 +102,30 @@ public class PreferenceManager {
 
     public static void setSessionToken(String token) {
         Hawk.put(SESSION_TOKEN, token);
+    }
+
+    public static void setOperationData(InquiryStatusOperations inquiryStatusOperations) {
+        Hawk.put(OPERATION_DATA, inquiryStatusOperations);
+    }
+
+    public static InquiryStatusOperations getOperationData() {
+        return Hawk.get(OPERATION_DATA, new InquiryStatusOperations());
+    }
+
+    public static void setItemVariantsList(List<ItemVariants> itemVariantsList) {
+        Hawk.put(ITEM_VARIANTS_LIST, itemVariantsList);
+    }
+
+    public static List<ItemVariants> getItemVariantList() {
+        return Hawk.get(ITEM_VARIANTS_LIST, new ArrayList<>());
+    }
+
+    public static void setTransactionType(List<PaymentTypeResponse> transactionType) {
+        Hawk.put(TRANSACTION_TYPE_LIST, transactionType);
+    }
+
+    public static List<PaymentTypeResponse> getTransactionType() {
+        return Hawk.get(TRANSACTION_TYPE_LIST, new ArrayList<>());
     }
 
     public static String getSessionTokenArdi() {
@@ -231,9 +266,13 @@ public class PreferenceManager {
         Hawk.put(IMEI, imei);
     }
 
+    public static boolean isOfflineMode() {
+        return Hawk.get(IS_OFFLINE_MODE, false);
+    }
 
-
-
+    public static void setIsOfflineMode(boolean isOfflineMode) {
+        Hawk.put(IS_OFFLINE_MODE, isOfflineMode);
+    }
 
     public static void saveLogIn(String token, String id,String first_name, String username) {
         Hawk.put(IS_LOGIN, true);
@@ -292,5 +331,13 @@ public class PreferenceManager {
 
     public static StockLocation getStockLocation() {
         return Hawk.get(STOCK_LOCATION);
+    }
+
+    public static void saveRole(Role role) {
+        Hawk.put(ROLE, role);
+    }
+
+    public static Role getRole() {
+        return Hawk.get(ROLE, null);
     }
 }
